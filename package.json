@@ -1,0 +1,8 @@
+{
+  "name": "frontend-hardening",
+  "private": true,
+  "scripts": {
+    "test": "pnpm -r test"
+  },
+  "packageManager": "pnpm@12.14.0"
+}
