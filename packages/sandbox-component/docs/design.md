@@ -43,6 +43,8 @@ The directive applies only to documents ([CSP3 §6.3.2](https://w3c.github.io/we
 
 This protection holds only while the worker is running. Untrusted same-origin script can unregister it, and then the frame's URL reaches the server. The server must never serve secrets at a sandbox frame URL.
 
+Untrusted script can also register its own worker with a narrower scope, which would take over a boundary's frames. The browser sends `Service-Worker: script` when it fetches a worker script ([Service Workers](https://w3c.github.io/ServiceWorker/#service-worker-script-request)). The server must reject any request carrying that header for a URL other than a trusted worker's script. That rule leaves the adversary only the trusted scripts to register. Each trusted script lives at its own scope's path, and the server never sends [`Service-Worker-Allowed`](https://w3c.github.io/ServiceWorker/#service-worker-allowed), so a trusted script can't control a scope outside its own path. If the adversary registers one trusted script at a scope inside another's, frames there get no secrets, which denies service but leaks nothing.
+
 ## Example: PII in a form
 
 In a typical form, PII in an `<input>` is readable by every script on the page. With `sandbox-component`, only the code that fetches, displays, and updates the PII can read it. The embedding page handles ciphertext only.
