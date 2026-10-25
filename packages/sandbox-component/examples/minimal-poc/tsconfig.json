@@ -1,0 +1,21 @@
+{
+  "extends": "../../../../tsconfig.json",
+  "compilerOptions": {
+    "target": "ESNext",
+    "lib": [
+      "ESNext",
+      "DOM"
+    ],
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "types": [
+      "node"
+    ]
+  },
+  "include": [
+    "tests",
+    "playwright.config.ts"
+  ]
+}
