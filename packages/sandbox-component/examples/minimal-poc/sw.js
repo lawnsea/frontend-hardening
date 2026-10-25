@@ -43,7 +43,7 @@ function sandbox() {
       false,
       ["decrypt"],
     );
-    const bytes = Uint8Array.fromBase64(location.search.slice(1), { alphabet: "base64url" });
+    const bytes = Uint8Array.fromBase64(location.hash.slice(1), { alphabet: "base64url" });
     const plaintext = await crypto.subtle.decrypt(
       { name: "AES-GCM", iv: bytes.subarray(0, 12) },
       key,

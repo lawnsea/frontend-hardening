@@ -6,7 +6,7 @@
     <script type="module">
       navigator.serviceWorker.addEventListener("message", (event) => {
         const iframe = document.createElement("iframe");
-        iframe.src = `/sandbox?${event.data}`;
+        iframe.src = `/sandbox#${event.data}`;
         document.body.append(iframe);
       });
 
