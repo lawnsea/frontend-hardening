@@ -1,6 +1,6 @@
 # Design
 
-`sandbox-component` creates trust boundaries within a web application at a finer grain than an [origin](https://developer.mozilla.org/en-US/docs/Glossary/Origin). Normally the origin is the smallest trust boundary the browser enforces: every script in a frame, and in every same-origin frame it can reach, can read and change the same DOM, storage, and credentials. `sandbox-component` puts code and data that need protection in a sandboxed frame. That frame is served by a trusted [service worker](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API), and the rest of the page can only send it messages.
+`trusted-scopes` creates trust boundaries within a web application at a finer grain than an [origin](https://developer.mozilla.org/en-US/docs/Glossary/Origin). Normally the origin is the smallest trust boundary the browser enforces: every script in a frame, and in every same-origin frame it can reach, can read and change the same DOM, storage, and credentials. `trusted-scopes` puts code and data that need protection in a sandboxed frame. That frame is served by a trusted [service worker](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API), and the rest of the page can only send it messages.
 
 ## Terms
 
@@ -47,7 +47,7 @@ Untrusted script can also register its own worker with a narrower scope, which w
 
 ## Example: PII in a form
 
-In a typical form, PII in an `<input>` is readable by every script on the page. With `sandbox-component`, only the code that fetches, displays, and updates the PII can read it. The embedding page handles ciphertext only.
+In a typical form, PII in an `<input>` is readable by every script on the page. With `trusted-scopes`, only the code that fetches, displays, and updates the PII can read it. The embedding page handles ciphertext only.
 
 1. PII in the application's data model is encrypted, and the worker holds the keys.
 2. `<sandbox-input>` replaces `<input>`. Its frame implements the real `<input>` and receives the key material from the worker.
@@ -56,7 +56,7 @@ In a typical form, PII in an `<input>` is readable by every script on the page. 
 
 ## Out of scope
 
-`sandbox-component` provides primitives that applications can use to address these threats.
+`trusted-scopes` provides primitives that applications can use to address these threats.
 
 - **Key provisioning.** The design assumes the worker has the secrets. How it gets them is up to the application. For example, a worker can intercept API responses and encrypt their PII fields.
 - **Decryption oracle.** The embedding page can send any ciphertext to any frame. An application can bind ciphertext to its field, for example with [AEAD](https://developer.mozilla.org/en-US/docs/Web/API/AesGcmParams) associated data.
