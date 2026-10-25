@@ -1,8 +1,6 @@
 # trusted-scopes
 
-`trusted-scopes` creates trust boundaries within a web application at a finer grain than an [origin](https://developer.mozilla.org/en-US/docs/Glossary/Origin). Code and data that need protection live in a sandboxed frame that a trusted [service worker](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API) serves. The rest of the page can only send that frame messages.
-
-The project is at the design stage and has no public API yet.
+`trusted-scopes` describes how an [origin](https://developer.mozilla.org/en-US/docs/Glossary/Origin) can create trust boundaries at the granularity of [service worker](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API) scopes, using a service worker, the [CSP `sandbox` directive](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/sandbox), and an iframe. It then describes and demonstrates use cases of this primitive.
 
 - [Design](docs/design.md)
 - [Minimal example](examples/minimal-poc): a worker sends ciphertext to an untrusted page, and a sandboxed frame decrypts it.
