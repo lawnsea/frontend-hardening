@@ -4,13 +4,25 @@ const RAW_KEY = "zN8v4aZdXLPA1-DgIWfrRKGijWXSvKGDoxtNOF38MtQ";
 addEventListener("install", () => skipWaiting());
 addEventListener("activate", (event) => event.waitUntil(activate()));
 addEventListener("fetch", (event) => {
-  if (new URL(event.request.url).pathname === "/sandbox") event.respondWith(sandbox());
+  const { pathname } = new URL(event.request.url);
+  if (pathname === "/sandbox") {
+    event.respondWith(sandbox());
+  } else if (pathname === "/index.html") {
+    event.waitUntil(sendSecret(event.resultingClientId));
+    event.respondWith(fetch(event.request));
+  }
 });
 
 async function activate() {
   await clients.claim();
-  const ciphertext = await encrypt("seatec astronomy");
-  for (const client of await clients.matchAll({ type: "window" })) client.postMessage(ciphertext);
+  for (const client of await clients.matchAll({ type: "window" })) await sendSecret(client.id);
+}
+
+// The client for a navigation doesn't exist until its response arrives, so
+// this resolves after the fetch handler forwards the request.
+async function sendSecret(clientId) {
+  const client = await clients.get(clientId);
+  client?.postMessage(await encrypt("seatec astronomy"));
 }
 
 // Returns base64url(IV || AES-GCM output), with a 12-byte IV.

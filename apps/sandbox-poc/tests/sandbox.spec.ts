@@ -10,6 +10,16 @@ test("the frame shows the plaintext and the page sees only ciphertext", async ({
   expect(await page.content()).not.toContain(PLAINTEXT);
 });
 
+test("a controlled page gets the ciphertext when it loads", async ({ page }) => {
+  await page.goto("/index.html");
+  await expect(page.frameLocator("iframe").locator("span")).toHaveText(PLAINTEXT);
+
+  await page.reload();
+  expect(await page.evaluate(() => navigator.serviceWorker.controller)).not.toBeNull();
+  await expect(page.frameLocator("iframe").locator("span")).toHaveText(PLAINTEXT);
+  expect(await page.locator("iframe").count()).toBe(1);
+});
+
 test("the frame has an opaque origin", async ({ page }) => {
   await page.goto("/index.html");
   await expect(page.frameLocator("iframe").locator("span")).toHaveText(PLAINTEXT);
