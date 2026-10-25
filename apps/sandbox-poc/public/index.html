@@ -7,7 +7,6 @@
       if (!navigator.serviceWorker.controller) {
         navigator.serviceWorker.register("/sw.js", { scope: "/" });
       }
-      await navigator.serviceWorker.ready;
       navigator.serviceWorker.addEventListener("message", (event) => {
         const iframe = document.createElement("iframe");
         iframe.src = `/sandbox?${event.data}`;
