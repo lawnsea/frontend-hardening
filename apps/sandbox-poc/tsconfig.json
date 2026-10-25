@@ -2,12 +2,20 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "target": "ESNext",
-    "lib": ["ESNext", "DOM", "DOM.Iterable", "WebWorker"],
+    "lib": [
+      "ESNext",
+      "DOM"
+    ],
     "module": "preserve",
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "noEmit": true,
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   },
-  "include": ["src", "tests", "vite.config.ts", "playwright.config.ts"]
+  "include": [
+    "tests",
+    "playwright.config.ts"
+  ]
 }

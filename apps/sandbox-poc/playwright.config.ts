@@ -7,8 +7,9 @@ export default defineConfig({
   use: { baseURL: `http://localhost:${PORT}` },
   projects: [{ name: "chromium", use: devices["Desktop Chrome"] }],
   webServer: {
-    command: `pnpm exec vite --port ${PORT} --strictPort`,
-    url: `http://localhost:${PORT}`,
+    command: "node server.js",
+    env: { PORT: String(PORT) },
+    url: `http://localhost:${PORT}/index.html`,
     reuseExistingServer: !process.env.CI,
   },
 });

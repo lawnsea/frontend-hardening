@@ -4,14 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "start": "node server.js",
     "typecheck": "tsc --noEmit",
     "test": "playwright test"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",
     "@types/node": "^24.19.2",
-    "typescript": "^7.0.2",
-    "vite": "^8.3.5"
+    "typescript": "^7.0.2"
   }
 }

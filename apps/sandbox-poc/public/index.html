@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>sandbox-poc</title>
+    <script type="module">
+      if (!navigator.serviceWorker.controller) {
+        navigator.serviceWorker.register("/sw.js", { scope: "/" });
+      }
+      await navigator.serviceWorker.ready;
+      navigator.serviceWorker.addEventListener("message", (event) => {
+        const iframe = document.createElement("iframe");
+        iframe.src = `/sandbox?${event.data}`;
+        document.body.append(iframe);
+      });
+    </script>
+  </head>
+  <body></body>
+</html>
