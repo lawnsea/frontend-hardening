@@ -124,18 +124,18 @@ See [`examples/minimal-poc`](../examples/minimal-poc) for a full proof-of-concep
 
 This proof-of-concept has a number of vulnerabilities that must be mitigated.
 
+### Any client can read the secret
+
+Any client, not only the page, can request `/sw.js` and read the key. To prevent this, the server must return the worker's script only for authenticated requests, and return an error otherwise.
+
 ### The page can read the worker's source
 
-Any page script can fetch `/sw.js` and read the key. To prevent this, the server should serve the worker's script only to requests with [`Sec-Fetch-Dest: serviceworker`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Sec-Fetch-Dest), which scripts can't set, and with `Cache-Control: no-store`, so the page can't read it from the HTTP cache.
+Any page script can fetch `/sw.js` and read the key. To prevent this, the server should serve the worker's script only to requests with [`Sec-Fetch-Dest: serviceworker`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Sec-Fetch-Dest), which scripts can't set, and [`Service-Worker: script`](https://w3c.github.io/ServiceWorker/#service-worker), and with `Cache-Control: no-store`, so the page can't read it from the HTTP cache. If either header is missing, the server should return `403 Forbidden`.
 
-### The worker serves the frame's document to `fetch`
+### The page can read the frame's document
 
-The worker answers every request for `/sandbox`, not only navigations, and the `sandbox` directive doesn't apply to a `fetch` response. The page can create a same-origin iframe the worker controls, such as one at `/sandbox/x`, and call that frame's `fetch("/sandbox")` to read the key. To prevent this, the worker should answer only requests whose [`mode`](https://developer.mozilla.org/en-US/docs/Web/API/Request/mode) is `"navigate"`, which scripts can't set.
+The worker answers every request for `/sandbox`, not only navigations, and the `sandbox` directive doesn't apply to a `fetch` response. The page can create a same-origin iframe the worker controls, such as one at `/sandbox/x`, and call that frame's `fetch("/sandbox")` to read the key. To prevent this, the worker must only respond to requests whose [`mode`](https://developer.mozilla.org/en-US/docs/Web/API/Request/mode) is `"navigate"` and whose [`destination`](https://developer.mozilla.org/en-US/docs/Web/API/Request/destination) is `"iframe"`, which scripts can't set. `destination` is the worker's view of `Sec-Fetch-Dest`.
 
-### Another worker can take over part of the scope
+### The page can register a new service worker for the trusted scope
 
-The registration with the longest matching scope controls a URL. Page script can register a worker from any same-origin script whose directory contains the scope, such as an uploaded file, at a longer scope like `/sandbox/x`, and serve its own frame documents there. To prevent this, the server should return an error for any request with a [`Service-Worker`](https://w3c.github.io/ServiceWorker/#service-worker) header for a URL other than the trusted worker's.
-
-### Spectre
-
-The browser may run the frame in the page's process, where a [Spectre](https://spectreattack.com/) attack can read its memory. To prevent this, the frame can render the PII in a nested frame loaded from a `blob:` URL, which has an opaque origin and which the browser treats as cross-site ([Microsoft Edge](https://microsoftedge.github.io/edgevr/posts/deep-dive-into-site-isolation-part-1/#:~:text=Blob%20URL%20with%20opaque%20origin)).
+Page script can register a same-origin script it controls, such as an uploaded file, as a worker with the trusted scope. The new worker replaces the trusted one, so frames stop rendering. This is a denial of service only: the new worker doesn't have the key. To mitigate this, the server should return an error for `Service-Worker` requests that don't match a valid service worker URL.
