@@ -166,7 +166,16 @@ importers:
 
   .: {}
 
-  apps/sandbox-poc:
+  packages/sandbox-component:
+    devDependencies:
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^5.0.5
+        version: 5.0.5(@types/node@24.19.2)(vite@8.3.5(@types/node@24.19.2))
+
+  packages/sandbox-component/examples/minimal-poc:
     devDependencies:
       '@playwright/test':
         specifier: ^1.64.1
@@ -177,15 +186,6 @@ importers:
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
-
-  packages/sandbox-component:
-    devDependencies:
-      typescript:
-        specifier: ^7.0.2
-        version: 7.0.2
-      vitest:
-        specifier: ^5.0.5
-        version: 5.0.5(@types/node@24.19.2)(vite@8.3.5(@types/node@24.19.2))
 
 packages:
 
