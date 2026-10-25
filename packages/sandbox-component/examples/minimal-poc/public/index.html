@@ -4,14 +4,26 @@
     <meta charset="utf-8">
     <title>minimal-poc</title>
     <script type="module">
-      if (!navigator.serviceWorker.controller) {
-        navigator.serviceWorker.register("/sw.js", { scope: "/" });
-      }
       navigator.serviceWorker.addEventListener("message", (event) => {
         const iframe = document.createElement("iframe");
         iframe.src = `/sandbox?${event.data}`;
         document.body.append(iframe);
       });
+
+      // The worker must be active before it can serve the frame.
+      function activated(registration) {
+        const worker = registration.installing ?? registration.waiting;
+        return new Promise((resolve) =>
+          worker.addEventListener("statechange", () => {
+            if (worker.state === "activated") resolve(worker);
+          }),
+        );
+      }
+
+      const registration = await navigator.serviceWorker.register("/sw.js", { scope: "/sandbox" });
+      const worker = registration.active ?? (await activated(registration));
+      // Ask the worker for the ciphertext.
+      worker.postMessage(null);
     </script>
   </head>
   <body></body>

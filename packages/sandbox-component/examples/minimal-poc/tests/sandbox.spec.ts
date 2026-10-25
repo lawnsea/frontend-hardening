@@ -10,12 +10,13 @@ test("the frame shows the plaintext and the page sees only ciphertext", async ({
   expect(await page.content()).not.toContain(PLAINTEXT);
 });
 
-test("a controlled page gets the ciphertext when it loads", async ({ page }) => {
+test("the page gets the ciphertext on every load", async ({ page }) => {
   await page.goto("/index.html");
   await expect(page.frameLocator("iframe").locator("span")).toHaveText(PLAINTEXT);
 
   await page.reload();
-  expect(await page.evaluate(() => navigator.serviceWorker.controller)).not.toBeNull();
+  // The worker's scope is /sandbox, so it never controls the page.
+  expect(await page.evaluate(() => navigator.serviceWorker.controller)).toBeNull();
   await expect(page.frameLocator("iframe").locator("span")).toHaveText(PLAINTEXT);
   expect(await page.locator("iframe").count()).toBe(1);
 });
