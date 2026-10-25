@@ -8,7 +8,7 @@ addEventListener("fetch", (event) => {
 });
 
 async function sendSecret(client) {
-  client.postMessage(await encrypt("seatec astronomy"));
+  client.postMessage(await encrypt("setec astronomy"));
 }
 
 // Returns base64url(IV || AES-GCM output), with a 12-byte IV.
