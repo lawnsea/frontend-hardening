@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
-const PLAINTEXT = "seatec astronomy";
+const PLAINTEXT = "setec astronomy";
 
 async function load(page: Page): Promise<void> {
   await page.goto("/index.html");
