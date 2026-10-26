@@ -47,10 +47,10 @@
   <rect x="687" y="92" width="56" height="10" rx="1" fill="#fff" stroke="#333"/>
   <rect x="687" y="106" width="56" height="10" rx="1" fill="#fff" stroke="#333"/>
   <rect x="687" y="120" width="56" height="10" rx="1" fill="#fff" stroke="#333"/>
-  <text x="715" y="252" text-anchor="middle" font-size="13">https://example.com:443</text>
+  <text x="715" y="70" text-anchor="middle" font-size="13">https://example.com:443</text>
 
   <!-- Response -->
-  <line x1="584" y1="150" x2="392" y2="150" stroke="#333" marker-end="url(#arrowhead)"/>
+  <line x1="680" y1="150" x2="392" y2="150" stroke="#333" marker-end="url(#arrowhead)"/>
   <text x="490" y="140" text-anchor="middle" font-size="13">HTML, JS, CSS, data, etc</text>
 
   <!-- Legend -->
