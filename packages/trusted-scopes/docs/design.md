@@ -48,6 +48,11 @@ block-beta
   class untrustedKey untrusted
   class nameVal,ssnVal,piiKey pii
   class browser,site,heading,nameKey,ssnKey,themeKey,themeVal,trustedLabel,untrustedLabel,piiLabel,legend,right text
+  style site font-weight:bold,font-size:18px
+  style heading font-weight:bold,font-size:24px
+  style nameKey font-weight:bold
+  style ssnKey font-weight:bold
+  style themeKey font-weight:bold
 ```
 
 It would be preferable to expose the PII only to the user and to the element that displays it, and to treat the rest of the page as untrusted.
