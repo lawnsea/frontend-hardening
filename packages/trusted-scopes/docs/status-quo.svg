@@ -1,15 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="300" viewBox="0 0 800 300" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" fill="#000">
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="340" viewBox="0 0 860 340" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" fill="#000">
   <defs>
     <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M0,0 L10,5 L0,10 z" fill="#333"/>
     </marker>
   </defs>
-  <rect width="800" height="300" fill="#fff"/>
+  <rect width="860" height="340" fill="#fff"/>
 
   <!-- Browser window -->
   <rect x="10" y="10" width="380" height="280" rx="8" fill="#fff" stroke="#333"/>
   <rect x="24" y="22" width="352" height="28" rx="14" fill="#fff" stroke="#333"/>
-  <text x="40" y="41" font-size="13">example.com/profile</text>
+  <path d="M35,33 v-3 a4,4 0 0 1 8,0 v3" fill="none" stroke="#333" stroke-width="1.5"/>
+  <rect x="33" y="33" width="12" height="9" rx="1.5" fill="#333"/>
+  <text x="54" y="41" font-size="13">example.com/profile</text>
   <line x1="10" y1="62" x2="390" y2="62" stroke="#333"/>
 
   <text x="28" y="92" font-size="16" font-weight="bold">Example</text>
@@ -27,19 +29,35 @@
   <text x="100" y="252" text-anchor="end" font-weight="bold">Theme:</text>
   <text x="114" y="252">Dark</text>
 
-  <!-- Server -->
-  <rect x="580" y="40" width="200" height="60" fill="#fff" stroke="#333"/>
-  <text x="680" y="75" text-anchor="middle">https://example.com:443</text>
+  <!-- Server, in a cloud -->
+  <path d="M612,262
+           A37,37 0 0 1 598,200
+           A43,43 0 0 1 600,130
+           A45,45 0 0 1 625,62
+           A37,37 0 0 1 680,30
+           A43,43 0 0 1 750,30
+           A37,37 0 0 1 805,62
+           A45,45 0 0 1 830,130
+           A43,43 0 0 1 832,200
+           A37,37 0 0 1 818,262
+           A33,33 0 0 1 760,274
+           A53,53 0 0 1 680,274
+           A42,42 0 0 1 612,262 z" fill="#fff" stroke="#333"/>
+  <rect x="680" y="85" width="70" height="135" rx="3" fill="#fff" stroke="#333"/>
+  <rect x="687" y="92" width="56" height="10" rx="1" fill="#fff" stroke="#333"/>
+  <rect x="687" y="106" width="56" height="10" rx="1" fill="#fff" stroke="#333"/>
+  <rect x="687" y="120" width="56" height="10" rx="1" fill="#fff" stroke="#333"/>
+  <text x="715" y="252" text-anchor="middle" font-size="13">https://example.com:443</text>
 
   <!-- Response -->
-  <line x1="580" y1="70" x2="392" y2="70" stroke="#333" marker-end="url(#arrowhead)"/>
-  <text x="486" y="60" text-anchor="middle" font-size="13">HTML, JS, CSS, data, etc</text>
+  <line x1="584" y1="150" x2="392" y2="150" stroke="#333" marker-end="url(#arrowhead)"/>
+  <text x="490" y="140" text-anchor="middle" font-size="13">HTML, JS, CSS, data, etc</text>
 
   <!-- Legend -->
-  <rect x="640" y="196" width="16" height="16" fill="#fff" stroke="#333"/>
-  <text x="666" y="209">Trusted</text>
-  <rect x="640" y="226" width="16" height="16" fill="#ccc" stroke="#333"/>
-  <text x="666" y="239">Untrusted</text>
-  <rect x="640" y="256" width="16" height="16" fill="#fff" stroke="#333" stroke-dasharray="4 3"/>
-  <text x="666" y="269">PII</text>
+  <rect x="626" y="308" width="16" height="16" fill="#fff" stroke="#333"/>
+  <text x="650" y="321">Trusted</text>
+  <rect x="712" y="308" width="16" height="16" fill="#ccc" stroke="#333"/>
+  <text x="736" y="321">Untrusted</text>
+  <rect x="808" y="308" width="16" height="16" fill="#fff" stroke="#333" stroke-dasharray="4 3"/>
+  <text x="832" y="321">PII</text>
 </svg>
