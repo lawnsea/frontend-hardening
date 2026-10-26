@@ -12,48 +12,7 @@ An origin is a URL's scheme, host, and port. Under the same-origin policy, a scr
 
 Consider a web application that displays a user's personally identifiable information (PII), such as their address. The page fetches the PII and renders it into an element. Every script in the page, including third-party code, can read it.
 
-```mermaid
-block-beta
-  columns 3
-  block:browser
-    columns 1
-    block:window
-      columns 3
-      addr["example.com/profile"]:3
-      site["Example"]:3
-      heading["Profile"]:3
-      nameKey["Name:"] nameVal["Roberta Jean Oppenheimer"]:2
-      ssnKey["SSN:"] ssnVal["123-45-1701"]:2
-      themeKey["Theme:"] themeVal["Dark"]:2
-    end
-  end
-  space
-  block:right
-    columns 1
-    server["https://example.com:443"]
-    space
-    block:legend
-      columns 3
-      trustedKey[" "] trustedLabel["Trusted"]:2
-      untrustedKey[" "] untrustedLabel["Untrusted"]:2
-      piiKey[" "] piiLabel["PII"]:2
-    end
-  end
-  server -- "HTML, JS, CSS, data, etc" --> window
-  classDef trusted fill:#fff,stroke:#333,color:#000
-  classDef untrusted fill:#ccc,stroke:#333,color:#000
-  classDef pii fill:#fff,stroke:#333,color:#000,stroke-dasharray:5 5
-  classDef text fill:none,stroke-width:0,color:#000
-  class window,addr,server,trustedKey trusted
-  class untrustedKey untrusted
-  class nameVal,ssnVal,piiKey pii
-  class browser,site,heading,nameKey,ssnKey,themeKey,themeVal,trustedLabel,untrustedLabel,piiLabel,legend,right text
-  style site font-weight:bold,font-size:18px
-  style heading font-weight:bold,font-size:24px
-  style nameKey font-weight:bold
-  style ssnKey font-weight:bold
-  style themeKey font-weight:bold
-```
+![A browser at example.com/profile shows a profile page with the user's name and SSN marked as PII. The server at https://example.com:443 sends the page its HTML, JS, CSS, and data. Everything is trusted.](status-quo.svg)
 
 It would be preferable to expose the PII only to the user and to the element that displays it, and to treat the rest of the page as untrusted.
 
