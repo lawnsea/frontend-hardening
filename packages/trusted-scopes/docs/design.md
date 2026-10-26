@@ -15,20 +15,39 @@ Consider a web application that displays a user's personally identifiable inform
 ```mermaid
 block-beta
   columns 3
-  server["Server"]
-  space
-  block:page
+  block:browser
     columns 1
-    pagelabel["Page"]
-    app["App code"]
-    deps["Third-party code"]
-    pii["PII element"]
+    block:window
+      columns 3
+      addr["example.com/profile"]:3
+      site["Example"]:3
+      heading["Profile"]:3
+      nameKey["Name:"] nameVal["Roberta Jean Oppenheimer"]:2
+      ssnKey["SSN:"] ssnVal["123-45-1701"]:2
+      themeKey["Theme:"] themeVal["Dark"]:2
+    end
   end
-  server -- "PII" --> pii
+  space
+  block:right
+    columns 1
+    server["https://example.com:443"]
+    space
+    block:legend
+      columns 3
+      trustedKey[" "] trustedLabel["Trusted"]:2
+      untrustedKey[" "] untrustedLabel["Untrusted"]:2
+      piiKey[" "] piiLabel["PII"]:2
+    end
+  end
+  server -- "HTML, JS, CSS, data, etc" --> window
   classDef trusted fill:#fff,stroke:#333,color:#000
-  classDef label stroke-width:0,fill:none
-  class server,page,app,deps,pii trusted
-  class pagelabel label
+  classDef untrusted fill:#ccc,stroke:#333,color:#000
+  classDef pii fill:#fff,stroke:#333,color:#000,stroke-dasharray:5 5
+  classDef text fill:none,stroke-width:0,color:#000
+  class window,addr,server,trustedKey trusted
+  class untrustedKey untrusted
+  class nameVal,ssnVal,piiKey pii
+  class browser,site,heading,nameKey,ssnKey,themeKey,themeVal,trustedLabel,untrustedLabel,piiLabel,legend,right text
 ```
 
 It would be preferable to expose the PII only to the user and to the element that displays it, and to treat the rest of the page as untrusted.
