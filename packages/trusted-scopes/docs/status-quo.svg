@@ -1,13 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="860" height="366" viewBox="0 0 860 366" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" fill="#000">
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="326" viewBox="0 0 860 326" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" fill="#000">
   <defs>
     <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M0,0 L10,5 L0,10 z" fill="#333"/>
     </marker>
   </defs>
-  <rect width="860" height="366" fill="#fff"/>
+  <rect width="860" height="326" fill="#fff"/>
 
   <!-- Browser window -->
-  <rect x="10" y="10" width="380" height="280" rx="8" fill="#fff" stroke="#333"/>
+  <rect x="10" y="10" width="380" height="240" rx="8" fill="#fff" stroke="#333"/>
   <rect x="24" y="22" width="352" height="28" rx="14" fill="#fff" stroke="#333"/>
   <path d="M35,33 v-3 a4,4 0 0 1 8,0 v3" fill="none" stroke="#333" stroke-width="1.5"/>
   <rect x="33" y="33" width="12" height="9" rx="1.5" fill="#333"/>
@@ -34,34 +34,34 @@
   <text x="114" y="234">Dark</text>
 
   <!-- Server, in a cloud -->
-  <path d="M612,262
-           A37,37 0 0 1 598,200
-           A43,43 0 0 1 600,130
-           A45,45 0 0 1 625,62
-           A37,37 0 0 1 680,30
-           A43,43 0 0 1 750,30
-           A37,37 0 0 1 805,62
-           A45,45 0 0 1 830,130
-           A43,43 0 0 1 832,200
-           A37,37 0 0 1 818,262
-           A33,33 0 0 1 760,274
-           A53,53 0 0 1 680,274
-           A42,42 0 0 1 612,262 z" fill="#fff" stroke="#333"/>
-  <rect x="680" y="85" width="70" height="135" rx="3" fill="#fff" stroke="#333"/>
-  <rect x="687" y="92" width="56" height="10" rx="1" fill="#fff" stroke="#333"/>
-  <rect x="687" y="106" width="56" height="10" rx="1" fill="#fff" stroke="#333"/>
-  <rect x="687" y="120" width="56" height="10" rx="1" fill="#fff" stroke="#333"/>
-  <text x="715" y="70" text-anchor="middle" font-size="13">https://example.com:443</text>
+  <path d="M612,226
+           A37,31.7 0 0 1 598,172.9
+           A43,36.9 0 0 1 600,112.9
+           A45,38.6 0 0 1 625,54.6
+           A37,31.7 0 0 1 680,27.1
+           A43,36.9 0 0 1 750,27.1
+           A37,31.7 0 0 1 805,54.6
+           A45,38.6 0 0 1 830,112.9
+           A43,36.9 0 0 1 832,172.9
+           A37,31.7 0 0 1 818,226
+           A33,28.3 0 0 1 760,236.3
+           A53,45.4 0 0 1 680,236.3
+           A42,36 0 0 1 612,226 z" fill="#fff" stroke="#333"/>
+  <rect x="680" y="74.3" width="70" height="115.7" rx="3" fill="#fff" stroke="#333"/>
+  <rect x="687" y="80.3" width="56" height="8.6" rx="1" fill="#fff" stroke="#333"/>
+  <rect x="687" y="92.3" width="56" height="8.6" rx="1" fill="#fff" stroke="#333"/>
+  <rect x="687" y="104.3" width="56" height="8.6" rx="1" fill="#fff" stroke="#333"/>
+  <text x="715" y="61.4" text-anchor="middle" font-size="13">https://example.com:443</text>
 
   <!-- Response -->
-  <line x1="680" y1="150" x2="392" y2="150" stroke="#333" marker-end="url(#arrowhead)"/>
-  <text x="490" y="140" text-anchor="middle" font-size="13">HTML, JS, CSS, data, etc</text>
+  <line x1="680" y1="130" x2="392" y2="130" stroke="#333" marker-end="url(#arrowhead)"/>
+  <text x="490" y="120" text-anchor="middle" font-size="13">HTML, JS, CSS, data, etc</text>
 
   <!-- Legend -->
-  <rect x="10" y="304" width="12" height="12" fill="#fff" stroke="#333"/>
-  <text x="30" y="314" font-size="10.5">Trusted</text>
-  <rect x="10" y="325" width="12" height="12" fill="#ccc" stroke="#333"/>
-  <text x="30" y="335" font-size="10.5">Untrusted</text>
-  <rect x="10" y="346" width="12" height="12" fill="#fff" stroke="#333" stroke-dasharray="3 2"/>
-  <text x="30" y="356" font-size="10.5">PII</text>
+  <rect x="10" y="264" width="12" height="12" fill="#fff" stroke="#333"/>
+  <text x="30" y="274" font-size="10.5">Trusted</text>
+  <rect x="10" y="285" width="12" height="12" fill="#ccc" stroke="#333"/>
+  <text x="30" y="295" font-size="10.5">Untrusted</text>
+  <rect x="10" y="306" width="12" height="12" fill="#fff" stroke="#333" stroke-dasharray="3 2"/>
+  <text x="30" y="316" font-size="10.5">PII</text>
 </svg>
