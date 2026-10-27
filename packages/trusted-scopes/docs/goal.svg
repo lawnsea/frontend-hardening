@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="305" viewBox="0 0 860 305" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" fill="#000">
+  <defs>
+    <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#333"/>
+    </marker>
+    <symbol id="lock" viewBox="0 0 12 16" overflow="visible">
+      <path d="M2,7 v-3 a4,4 0 0 1 8,0 v3" fill="none" stroke="#333" stroke-width="1.5"/>
+      <rect y="7" width="12" height="9" rx="1.5" fill="#333"/>
+    </symbol>
+    <symbol id="cloud" viewBox="0 0 270 222" preserveAspectRatio="none" overflow="visible">
+      <path d="M32,197.1
+             A37,28.9 0 0 1 18,148.7
+             A43,33.6 0 0 1 20,94
+             A45,35.2 0 0 1 45,40.8
+             A37,28.9 0 0 1 100,15.5
+             A43,33.6 0 0 1 170,15.5
+             A37,28.9 0 0 1 225,40.8
+             A45,35.2 0 0 1 250,94
+             A43,33.6 0 0 1 252,148.7
+             A37,28.9 0 0 1 238,197.1
+             A33,25.8 0 0 1 180,206.5
+             A53,41.5 0 0 1 100,206.5
+             A42,32.9 0 0 1 32,197.1 z" fill="inherit" stroke="#333" vector-effect="non-scaling-stroke"/>
+    </symbol>
+    <symbol id="server" viewBox="0 0 70 105.6" preserveAspectRatio="none" overflow="visible">
+      <rect width="70" height="105.6" rx="3" fill="inherit" stroke="#333" vector-effect="non-scaling-stroke"/>
+      <rect x="7" y="5.4" width="56" height="7.9" rx="1" fill="#fff" stroke="#333" vector-effect="non-scaling-stroke"/>
+      <rect x="7" y="16.4" width="56" height="7.9" rx="1" fill="#fff" stroke="#333" vector-effect="non-scaling-stroke"/>
+      <rect x="7" y="27.3" width="56" height="7.9" rx="1" fill="#fff" stroke="#333" vector-effect="non-scaling-stroke"/>
+    </symbol>
+    <symbol id="legend" viewBox="0 0 70 60" overflow="visible">
+      <rect width="12" height="12" fill="#fff" stroke="#333"/>
+      <text x="20" y="10" font-size="10.5">Trusted</text>
+      <rect y="21" width="12" height="12" fill="#ccc" stroke="#333"/>
+      <text x="20" y="31" font-size="10.5">Untrusted</text>
+      <rect y="42" width="12" height="12" fill="#fff" stroke="#333" stroke-dasharray="3 2"/>
+      <text x="20" y="52" font-size="10.5">PII</text>
+    </symbol>
+  </defs>
+  <rect width="860" height="305" fill="#fff"/>
+
+  <!-- Browser window -->
+  <rect x="10" y="10" width="380" height="219" rx="8" fill="#fff" stroke="#333"/>
+  <rect x="14" y="14" width="372" height="28" rx="8" fill="#fff" stroke="#333"/>
+  <use href="#lock" x="23" y="18" width="12" height="16"/>
+  <text x="44" y="33" font-size="13">example.com/profile</text>
+  <path d="M10.5,46 H389.5 V221 A7.5,7.5 0 0 1 382,228.5 H18 A7.5,7.5 0 0 1 10.5,221 Z" fill="#ccc"/>
+  <line x1="10" y1="46" x2="390" y2="46" stroke="#333"/>
+
+  <text x="16" y="60" font-size="11.25" font-weight="bold">MyExample</text>
+  <text x="97" y="60" font-size="9.75">Home</text>
+  <text x="141" y="60" font-size="9.75">Samples</text>
+  <text x="197" y="60" font-size="9.75">Exemplars</text>
+  <text x="384" y="60" font-size="9.75" text-anchor="end">Profile</text>
+  <line x1="10" y1="65" x2="390" y2="65" stroke="#999"/>
+  <text x="28" y="101" font-size="24" font-weight="bold">Profile</text>
+
+  <text x="100" y="141" text-anchor="end" font-weight="bold">Name:</text>
+  <rect x="106" y="123" width="220" height="26" fill="#fff" stroke="#333" stroke-dasharray="5 5"/>
+  <text x="114" y="141">Roberta Jean Oppenheimer</text>
+
+  <text x="100" y="177" text-anchor="end" font-weight="bold">SSN:</text>
+  <rect x="106" y="159" width="110" height="26" fill="#fff" stroke="#333" stroke-dasharray="5 5"/>
+  <text x="114" y="177">123-45-1701</text>
+
+  <text x="100" y="213" text-anchor="end" font-weight="bold">Theme:</text>
+  <text x="114" y="213">Dark</text>
+
+  <!-- Server, in a cloud -->
+  <use href="#cloud" x="580" y="10" width="270" height="222" fill="#fff"/>
+  <use href="#server" x="680" y="68.7" width="70" height="105.6" fill="#fff"/>
+  <text x="715" y="56.8" text-anchor="middle" font-size="13">https://example.com:443</text>
+
+  <!-- Response -->
+  <line x1="680" y1="119.5" x2="392" y2="119.5" stroke="#333" marker-end="url(#arrowhead)"/>
+  <text x="490" y="109.5" text-anchor="middle" font-size="13">HTML, JS, CSS, data, etc</text>
+
+  <!-- Legend -->
+  <use href="#legend" x="10" y="243" width="70" height="60"/>
+</svg>
