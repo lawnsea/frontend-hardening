@@ -1,67 +1,67 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="860" height="310" viewBox="0 0 860 310" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" fill="#000">
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="305" viewBox="0 0 860 305" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" fill="#000">
   <defs>
     <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M0,0 L10,5 L0,10 z" fill="#333"/>
     </marker>
   </defs>
-  <rect width="860" height="310" fill="#fff"/>
+  <rect width="860" height="305" fill="#fff"/>
 
   <!-- Browser window -->
-  <rect x="10" y="10" width="380" height="224" rx="8" fill="#fff" stroke="#333"/>
+  <rect x="10" y="10" width="380" height="219" rx="8" fill="#fff" stroke="#333"/>
   <rect x="14" y="14" width="372" height="28" rx="8" fill="#fff" stroke="#333"/>
   <path d="M25,25 v-3 a4,4 0 0 1 8,0 v3" fill="none" stroke="#333" stroke-width="1.5"/>
   <rect x="23" y="25" width="12" height="9" rx="1.5" fill="#333"/>
   <text x="44" y="33" font-size="13">example.com/profile</text>
   <line x1="10" y1="46" x2="390" y2="46" stroke="#333"/>
 
-  <text x="16" y="64" font-size="15" font-weight="bold">MyExample</text>
-  <text x="116" y="64" font-size="13">Home</text>
-  <text x="168" y="64" font-size="13">Samples</text>
-  <text x="236" y="64" font-size="13">Exemplars</text>
-  <text x="384" y="64" font-size="13" text-anchor="end">Profile</text>
-  <line x1="10" y1="70" x2="390" y2="70" stroke="#999"/>
-  <text x="28" y="106" font-size="24" font-weight="bold">Profile</text>
+  <text x="16" y="60" font-size="11.25" font-weight="bold">MyExample</text>
+  <text x="97" y="60" font-size="9.75">Home</text>
+  <text x="141" y="60" font-size="9.75">Samples</text>
+  <text x="197" y="60" font-size="9.75">Exemplars</text>
+  <text x="384" y="60" font-size="9.75" text-anchor="end">Profile</text>
+  <line x1="10" y1="65" x2="390" y2="65" stroke="#999"/>
+  <text x="28" y="101" font-size="24" font-weight="bold">Profile</text>
 
-  <text x="100" y="146" text-anchor="end" font-weight="bold">Name:</text>
-  <rect x="106" y="128" width="220" height="26" fill="#fff" stroke="#333" stroke-dasharray="5 5"/>
-  <text x="114" y="146">Roberta Jean Oppenheimer</text>
+  <text x="100" y="141" text-anchor="end" font-weight="bold">Name:</text>
+  <rect x="106" y="123" width="220" height="26" fill="#fff" stroke="#333" stroke-dasharray="5 5"/>
+  <text x="114" y="141">Roberta Jean Oppenheimer</text>
 
-  <text x="100" y="182" text-anchor="end" font-weight="bold">SSN:</text>
-  <rect x="106" y="164" width="110" height="26" fill="#fff" stroke="#333" stroke-dasharray="5 5"/>
-  <text x="114" y="182">123-45-1701</text>
+  <text x="100" y="177" text-anchor="end" font-weight="bold">SSN:</text>
+  <rect x="106" y="159" width="110" height="26" fill="#fff" stroke="#333" stroke-dasharray="5 5"/>
+  <text x="114" y="177">123-45-1701</text>
 
-  <text x="100" y="218" text-anchor="end" font-weight="bold">Theme:</text>
-  <text x="114" y="218">Dark</text>
+  <text x="100" y="213" text-anchor="end" font-weight="bold">Theme:</text>
+  <text x="114" y="213">Dark</text>
 
   <!-- Server, in a cloud -->
-  <path d="M612,211.6
-           A37,29.6 0 0 1 598,162.1
-           A43,34.4 0 0 1 600,106.1
-           A45,36 0 0 1 625,51.7
-           A37,29.6 0 0 1 680,25.9
-           A43,34.4 0 0 1 750,25.9
-           A37,29.6 0 0 1 805,51.7
-           A45,36 0 0 1 830,106.1
-           A43,34.4 0 0 1 832,162.1
-           A37,29.6 0 0 1 818,211.6
-           A33,26.4 0 0 1 760,221.2
-           A53,42.4 0 0 1 680,221.2
-           A42,33.6 0 0 1 612,211.6 z" fill="#fff" stroke="#333"/>
-  <rect x="680" y="70" width="70" height="108" rx="3" fill="#fff" stroke="#333"/>
-  <rect x="687" y="75.6" width="56" height="8.1" rx="1" fill="#fff" stroke="#333"/>
-  <rect x="687" y="86.8" width="56" height="8.1" rx="1" fill="#fff" stroke="#333"/>
-  <rect x="687" y="98" width="56" height="8.1" rx="1" fill="#fff" stroke="#333"/>
-  <text x="715" y="57.9" text-anchor="middle" font-size="13">https://example.com:443</text>
+  <path d="M612,207.1
+           A37,28.9 0 0 1 598,158.7
+           A43,33.6 0 0 1 600,104
+           A45,35.2 0 0 1 625,50.8
+           A37,28.9 0 0 1 680,25.5
+           A43,33.6 0 0 1 750,25.5
+           A37,28.9 0 0 1 805,50.8
+           A45,35.2 0 0 1 830,104
+           A43,33.6 0 0 1 832,158.7
+           A37,28.9 0 0 1 818,207.1
+           A33,25.8 0 0 1 760,216.5
+           A53,41.5 0 0 1 680,216.5
+           A42,32.9 0 0 1 612,207.1 z" fill="#fff" stroke="#333"/>
+  <rect x="680" y="68.7" width="70" height="105.6" rx="3" fill="#fff" stroke="#333"/>
+  <rect x="687" y="74.1" width="56" height="7.9" rx="1" fill="#fff" stroke="#333"/>
+  <rect x="687" y="85.1" width="56" height="7.9" rx="1" fill="#fff" stroke="#333"/>
+  <rect x="687" y="96" width="56" height="7.9" rx="1" fill="#fff" stroke="#333"/>
+  <text x="715" y="56.8" text-anchor="middle" font-size="13">https://example.com:443</text>
 
   <!-- Response -->
-  <line x1="680" y1="122" x2="392" y2="122" stroke="#333" marker-end="url(#arrowhead)"/>
-  <text x="490" y="112" text-anchor="middle" font-size="13">HTML, JS, CSS, data, etc</text>
+  <line x1="680" y1="119.5" x2="392" y2="119.5" stroke="#333" marker-end="url(#arrowhead)"/>
+  <text x="490" y="109.5" text-anchor="middle" font-size="13">HTML, JS, CSS, data, etc</text>
 
   <!-- Legend -->
-  <rect x="10" y="248" width="12" height="12" fill="#fff" stroke="#333"/>
-  <text x="30" y="258" font-size="10.5">Trusted</text>
-  <rect x="10" y="269" width="12" height="12" fill="#ccc" stroke="#333"/>
-  <text x="30" y="279" font-size="10.5">Untrusted</text>
-  <rect x="10" y="290" width="12" height="12" fill="#fff" stroke="#333" stroke-dasharray="3 2"/>
-  <text x="30" y="300" font-size="10.5">PII</text>
+  <rect x="10" y="243" width="12" height="12" fill="#fff" stroke="#333"/>
+  <text x="30" y="253" font-size="10.5">Trusted</text>
+  <rect x="10" y="264" width="12" height="12" fill="#ccc" stroke="#333"/>
+  <text x="30" y="274" font-size="10.5">Untrusted</text>
+  <rect x="10" y="285" width="12" height="12" fill="#fff" stroke="#333" stroke-dasharray="3 2"/>
+  <text x="30" y="295" font-size="10.5">PII</text>
 </svg>
