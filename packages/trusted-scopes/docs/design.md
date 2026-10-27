@@ -20,59 +20,9 @@ It would be preferable to expose the PII only to the user and to the element tha
 
 One way: the page receives only PII ciphertext and displays it in `<iframe src="/pii/#<ciphertext>">`. The server returns a document that decrypts its fragment and renders the PII, and includes the `Content-Security-Policy: sandbox allow-scripts` header, causing the browser to assign the document an opaque origin. Because the document is not the same origin as the embedding page, it cannot access its contents, including the PII and the decryption key for the ciphertext.
 
-```mermaid
-block-beta
-  columns 3
-  server["Server"]
-  space
-  block:page
-    columns 1
-    pagelabel["Page"]
-    app["App code"]
-    space
-    frame["PII frame"]
-  end
-  server -- "PII ciphertext" --> app
-  server -- "frame document" --> frame
-  app -- "src" --> frame
-  classDef trusted fill:#fff,stroke:#333,color:#000
-  classDef untrusted fill:#ccc,stroke:#333,color:#000
-  classDef label stroke-width:0,fill:none
-  class page,app untrusted
-  class server,frame trusted
-  class pagelabel label
-```
-
 Each frame costs a network round trip, so this is slow, and a network disruption stops the PII from rendering.
 
 Instead, a service worker hosted at `/pii/sw.js` and registered with scope `/pii/` can answer the request for the frame's document locally.
-
-```mermaid
-block-beta
-  columns 3
-  server["Server"]
-  space
-  block:page
-    columns 1
-    pagelabel["Page"]
-    app["App code"]
-    space
-    frame["PII frame"]
-  end
-  space:3
-  sw["Service worker"]
-  space:2
-  server -- "PII ciphertext" --> app
-  server -- "sw.js" --> sw
-  sw -- "frame document" --> frame
-  app -- "src" --> frame
-  classDef trusted fill:#fff,stroke:#333,color:#000
-  classDef untrusted fill:#ccc,stroke:#333,color:#000
-  classDef label stroke-width:0,fill:none
-  class page,app untrusted
-  class server,sw,frame trusted
-  class pagelabel label
-```
 
 ## A Minimal Proof-of-Concept
 
