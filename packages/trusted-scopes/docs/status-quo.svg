@@ -72,7 +72,7 @@
 
   <!-- Response -->
   <line x1="680" y1="119.5" x2="392" y2="119.5" stroke="#333" marker-end="url(#arrowhead)"/>
-  <text x="490" y="109.5" text-anchor="middle" font-size="13">HTML, JS, CSS, data, etc</text>
+  <text x="490" y="109.5" text-anchor="middle" font-size="13">/profile HTML</text>
 
   <!-- Legend -->
   <use href="#legend" x="10" y="243" width="70" height="60"/>
