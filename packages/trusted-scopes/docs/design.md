@@ -12,11 +12,11 @@ An origin is a URL's scheme, host, and port. Under the same-origin policy, a scr
 
 Consider a web application that displays a user's personally identifiable information (PII), such as their address. The page fetches the PII and renders it into an element. Every script in the page, including third-party code, can read it.
 
-![A browser at example.com/profile shows a profile page with the user's name and SSN marked as PII. The server at https://example.com:443 sends the page the HTML for /profile. Everything is trusted.](status-quo.svg)
+![A browser at example.com/profile shows a profile page with the user's name and address marked as PII. The server at https://example.com:443 sends the page the HTML for /profile. Everything is trusted.](status-quo.svg)
 
 It would be preferable to expose the PII only to the user and to the element that displays it, and to treat the rest of the page as untrusted.
 
-![The same profile page, but only the name and SSN, marked as PII, are trusted. The rest of the page is untrusted. The server at https://example.com:443 still sends the page the HTML for /profile.](goal.svg)
+![The same profile page, but only the name and address, marked as PII, are trusted. The rest of the page is untrusted. The server at https://example.com:443 still sends the page the HTML for /profile.](goal.svg)
 
 One way: the page receives only PII ciphertext and displays it in `<iframe src="/pii/#<ciphertext>">`. The server returns a document that decrypts its fragment and renders the PII, and includes the `Content-Security-Policy: sandbox allow-scripts` header, causing the browser to assign the document an opaque origin. Because the document is not the same origin as the embedding page, it cannot access its contents, including the PII and the decryption key for the ciphertext.
 
