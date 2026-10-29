@@ -24,8 +24,6 @@ This is not a new problem. Academia and industry have grappled with the challeng
 
 ![The same profile page, but the name and address are each in an iframe from https://pii.example.com. The browser requests /profile from https://example.com:443, which responds with the page's HTML. Each iframe requests its field, /name or /address, from https://pii.example.com:443, which responds with the field's HTML. Only the browser, pii.example.com, and the iframes are trusted. The rest of the page and example.com are untrusted.](cross-origin-iframes.svg)
 
-![The same profile page, but only the name and address, marked as PII, are trusted. The rest of the page is untrusted. The browser still requests GET /profile from the server at https://example.com:443, which responds with the page's HTML.](goal.svg)
-
 One way: the page receives only PII ciphertext and displays it in `<iframe src="/pii/#<ciphertext>">`. The server returns a document that decrypts its fragment and renders the PII, and includes the `Content-Security-Policy: sandbox allow-scripts` header, causing the browser to assign the document an opaque origin. Because the document is not the same origin as the embedding page, it cannot access its contents, including the PII and the decryption key for the ciphertext.
 
 Each frame costs a network round trip, so this is slow, and a network disruption stops the PII from rendering.
