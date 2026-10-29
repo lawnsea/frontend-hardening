@@ -99,21 +99,15 @@
   <line x1="635" y1="350" x2="635" y2="332" stroke="#333" marker-end="url(#arrowhead)"/>
   <line x1="775" y1="350" x2="775" y2="332" stroke="#333" marker-end="url(#arrowhead)"/>
   <line x1="915" y1="350" x2="915" y2="332" stroke="#333" marker-end="url(#arrowhead)"/>
-  <text x="783" y="370" font-size="13">deploy</text>
+  <text x="783" y="370" font-size="13">deploys</text>
 
   <!-- Requests and responses -->
   <line x1="392" y1="185" x2="598" y2="185" stroke="#333" marker-end="url(#arrowhead)"/>
   <text x="455" y="179" text-anchor="middle" font-size="13">GET /profile</text>
   <line x1="598" y1="195" x2="392" y2="195" stroke="#333" marker-end="url(#arrowhead)"/>
-  <text x="455" y="210" text-anchor="middle" font-size="13">page HTML</text>
-  <line x1="392" y1="245" x2="598" y2="245" stroke="#333" marker-end="url(#arrowhead)"/>
-  <text x="455" y="239" text-anchor="middle" font-size="13">GET /app.js</text>
-  <line x1="598" y1="255" x2="392" y2="255" stroke="#333" marker-end="url(#arrowhead)"/>
-  <text x="455" y="270" text-anchor="middle" font-size="13">page JS</text>
-  <line x1="392" y1="305" x2="598" y2="305" stroke="#333" marker-end="url(#arrowhead)"/>
-  <text x="455" y="299" text-anchor="middle" font-size="13">GET /app.css</text>
-  <line x1="598" y1="315" x2="392" y2="315" stroke="#333" marker-end="url(#arrowhead)"/>
-  <text x="455" y="330" text-anchor="middle" font-size="13">page CSS</text>
+  <text x="455" y="215" text-anchor="middle" font-size="13">200 OK<tspan x="455" dy="16">&lt;html...</tspan></text>
+  <line x1="392" y1="260" x2="598" y2="260" stroke="#333" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
+  <text x="455" y="280" text-anchor="middle" font-size="13">scripts, styles,<tspan x="455" dy="16">images, etc.</tspan></text>
 
   <!-- Legend -->
   <g transform="translate(0,122)">

@@ -16,7 +16,7 @@ Consider a web application that displays a user's profile, including personally 
 
 Due to its sensitivity, PII is regulated in almost every jurisdiction—often by multiple regulatory bodies. If the web application is audited for compliance, all trusted code and systems would be in-scope for the audit. In the simple example above, this is not a serious burden. However, the profile page for a modern web application typically includes many more components.
 
-![The same profile page, served by a modern web application at https://example.com:443. The browser requests /profile, /app.js, and /app.css from a web server, which responds with the page's HTML, JS, and CSS. The web server queries a GraphQL server, which requests the profile from a profile service, which reads it from a profile database. A CI service combines the origin's code with third-party code and deploys it to the servers. Everything is trusted.](modern-app.svg)
+![The same profile page, served by a modern web application at https://example.com:443. The browser requests /profile from a web server, which responds with the page's HTML, and exchanges scripts, styles, images, and other resources with it. The web server queries a GraphQL server, which requests the profile from a profile service, which reads it from a profile database. A CI service combines the origin's code with third-party code and deploys it to the servers. Everything is trusted.](modern-app.svg)
 
 It would be preferable to expose the PII only to the user and to the element that displays it, and to treat the rest of the page as untrusted.
 
