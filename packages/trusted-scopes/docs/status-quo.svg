@@ -74,7 +74,7 @@
   <line x1="392" y1="121" x2="680" y2="121" stroke="#333" marker-end="url(#arrowhead)"/>
   <text x="490" y="111" text-anchor="middle" font-size="13">GET /profile</text>
   <line x1="680" y1="136" x2="392" y2="136" stroke="#333" marker-end="url(#arrowhead)"/>
-  <text x="490" y="154" text-anchor="middle" font-size="13">200 Ok<tspan x="490" dy="16">&lt;html...</tspan></text>
+  <text x="490" y="154" text-anchor="middle" font-size="13">200 OK<tspan x="490" dy="16">&lt;html...</tspan></text>
 
   <!-- Legend -->
   <use href="#legend" x="10" y="261" width="70" height="60"/>
