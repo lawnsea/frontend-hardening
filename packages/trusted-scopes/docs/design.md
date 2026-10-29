@@ -1,6 +1,6 @@
 # Abstract
 
-Normally the [origin](https://developer.mozilla.org/en-US/docs/Glossary/Origin) is the smallest trust boundary the browser enforces. Every script in a frame, and in every [same-origin](https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy) frame it can reach, can read and change the same DOM, storage, and credentials. However, an origin can create finer-grained trust boundaries at the granularity of [service worker](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API) [scopes](https://w3c.github.io/ServiceWorker/#scope-match-algorithm), using a service worker, the [Content-Security-Policy header `sandbox` directive](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/sandbox), and an [iframe](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe).
+Normally the [origin](background.md#origin) is the smallest trust boundary the browser enforces. Every script in a frame, and in every [same-origin](background.md#same-origin-policy) frame it can reach, can read and change the same DOM, storage, and credentials. However, an origin can create finer-grained trust boundaries at the granularity of [service worker](background.md#service-worker) [scopes](background.md#scope), using a service worker, the [Content-Security-Policy](background.md#content-security-policy) header [`sandbox` directive](background.md#csp-sandbox-directive), and an [iframe](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe).
 
 # Introduction
 
@@ -24,7 +24,7 @@ This is not a new problem. Academia and industry have grappled with the challeng
 
 ![The same profile page, but the name and address are each in an iframe from https://pii.example.com. The browser requests /profile from https://example.com:443, which responds with the page's HTML. Each iframe requests its field, /name or /address, from https://pii.example.com:443, which responds with the field's HTML. Only the browser, pii.example.com, and the iframes are trusted. The rest of the page and example.com are untrusted.](cross-origin-iframes.svg)
 
-One way: the page receives only PII ciphertext and displays it in `<iframe src="/pii/#<ciphertext>">`. The server returns a document that decrypts its fragment and renders the PII, and includes the `Content-Security-Policy: sandbox allow-scripts` header, causing the browser to assign the document an opaque origin. Because the document is not the same origin as the embedding page, it cannot access its contents, including the PII and the decryption key for the ciphertext.
+One way: the page receives only PII ciphertext and displays it in `<iframe src="/pii/#<ciphertext>">`. The server returns a document that decrypts its fragment and renders the PII, and includes the `Content-Security-Policy: sandbox allow-scripts` header, causing the browser to assign the document an [opaque origin](background.md#opaque-origin). Because the document is not the same origin as the embedding page, it cannot access its contents, including the PII and the decryption key for the ciphertext.
 
 Each frame costs a network round trip, so this is slow, and a network disruption stops the PII from rendering.
 
