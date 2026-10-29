@@ -6,7 +6,7 @@ Normally the [origin](https://developer.mozilla.org/en-US/docs/Glossary/Origin) 
 
 ## Background
 
-An origin is a URL's scheme, host, and port. Under the same-origin policy, a script can read and change the documents, storage, and cookies of its own origin, but not those of other origins. A service worker is a script the browser runs apart from any page. It acts as a proxy for the network requests of the pages and frames it controls, and can answer a request with a response it builds itself. A worker's registration controls the URLs under its scope, a URL prefix: a navigation goes to the registration whose scope is the longest prefix of its URL. By default, a scope must be within the directory of the worker's script. A [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP) (CSP) is a response header that restricts what a document may do, such as which scripts it may run. Its `sandbox` directive applies the restrictions of the iframe [`sandbox` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe#sandbox) to a document, wherever it loads. `sandbox allow-scripts` lets the document run scripts but, without `allow-same-origin`, gives it an [opaque origin](https://html.spec.whatwg.org/multipage/browsers.html#concept-origin-opaque): an origin equal to no other origin. Other frames can't access its DOM or JavaScript globals, and it can't access the storage or cookies of its URL's origin.
+The following assumes familiarity with the concepts in [./background.md](./background.md).
 
 ## Motivation
 
