@@ -10,9 +10,13 @@ An origin is a URL's scheme, host, and port. Under the same-origin policy, a scr
 
 ## Motivation
 
-Consider a web application that displays a user's personally identifiable information (PII), such as their address. The page fetches the PII and renders it into an element. Every script in the page, including third-party code, can read it.
+Consider a web application that displays a user's profile, including personally identifiable information (PII) such as their address. Any and all code running in the profile page can read that PII. Code and infrastructure that can read PII are said to be _trusted_.
 
 ![A browser at example.com/profile shows a profile page with the user's name and address marked as PII. The browser requests GET /profile from the server at https://example.com:443, which responds with the page's HTML. Everything is trusted.](status-quo.svg)
+
+Due to its sensitivity, PII is regulated in almost every jurisdiction - often by multiple regulatory bodies. If the web application is audited for compliance, all trusted code and systems would be in-scope for the audit. In the simple example above, this is not a serious burden. However, the profile page for a modern web application typically includes many more components.
+
+![The same profile page, served by a modern web application at https://example.com:443. The browser requests /profile, /app.js, and /app.css from a web server, which responds with the page's HTML, JS, and CSS. The web server queries a GraphQL server, which requests the profile from a profile service, which reads it from a profile database. A CI service combines the origin's code with third-party code and deploys it to the servers. Everything is trusted.](modern-app.svg)
 
 It would be preferable to expose the PII only to the user and to the element that displays it, and to treat the rest of the page as untrusted.
 
