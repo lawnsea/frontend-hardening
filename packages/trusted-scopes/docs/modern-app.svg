@@ -103,11 +103,11 @@
 
   <!-- Requests and responses -->
   <line x1="392" y1="185" x2="598" y2="185" stroke="#333" marker-end="url(#arrowhead)"/>
-  <text x="455" y="179" text-anchor="middle" font-size="13">GET /profile</text>
+  <text x="400" y="179" font-size="13">GET /profile</text>
   <line x1="598" y1="195" x2="392" y2="195" stroke="#333" marker-end="url(#arrowhead)"/>
-  <text x="455" y="215" text-anchor="middle" font-size="13">200 OK<tspan x="455" dy="16">&lt;html...</tspan></text>
+  <text x="400" y="215" font-size="13">200 OK<tspan x="400" dy="16">&lt;html...</tspan></text>
   <line x1="392" y1="260" x2="598" y2="260" stroke="#333" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
-  <text x="455" y="280" text-anchor="middle" font-size="13">scripts, styles,<tspan x="455" dy="16">images, etc.</tspan></text>
+  <text x="400" y="280" font-size="13">scripts, styles,<tspan x="400" dy="16">images, etc.</tspan></text>
 
   <!-- Legend -->
   <g transform="translate(0,122)">
