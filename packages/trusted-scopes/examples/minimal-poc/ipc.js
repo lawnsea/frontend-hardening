@@ -4,7 +4,8 @@
 const pending = new Map();
 let nextId = 0;
 
-// handle takes { method, url, headers } and returns { status, headers, body }.
+// handle takes { method, url, headers, from } and returns { status, headers, body },
+// where from names the server that sent the request, or is undefined for the browser.
 export function serve(handle) {
   process.on("message", async (message) => {
     if (message.request) {

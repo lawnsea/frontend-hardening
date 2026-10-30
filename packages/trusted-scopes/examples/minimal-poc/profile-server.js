@@ -49,7 +49,7 @@ function page({ name, address }) {
 
 // The router sends this server only /profile.
 serve(async () => {
-  const [name, address] = await Promise.all(["name", "address"].map((field) => request("pii", `/fields/${field}`)));
+  const [name, address] = await Promise.all(["name", "address"].map((field) => request("pii", `/pii/fields/${field}`)));
   return {
     status: 200,
     headers: { "Content-Type": "text/html; charset=utf-8" },

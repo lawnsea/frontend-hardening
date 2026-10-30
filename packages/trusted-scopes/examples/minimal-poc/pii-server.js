@@ -21,15 +21,13 @@ async function worker() {
   return `const RAW_KEY = ${JSON.stringify(RAW_KEY)};\n${source}`;
 }
 
-serve(async ({ url }) => {
+serve(async ({ url, from }) => {
   const { pathname } = new URL(url, "http://localhost");
   if (pathname === "/pii/sw.js") {
     return { status: 200, headers: { "Content-Type": "text/javascript; charset=utf-8" }, body: await worker() };
   }
-  // Only other servers can request /fields/, since the router sends this server
-  // the browser's requests only under /pii/.
-  const field = pathname.match(/^\/fields\/(\w+)$/)?.[1];
-  if (field && Object.hasOwn(PROFILE, field)) {
+  const field = pathname.match(/^\/pii\/fields\/(\w+)$/)?.[1];
+  if (from === "profile" && field && Object.hasOwn(PROFILE, field)) {
     return { status: 200, headers: { "Content-Type": "text/plain" }, body: await encrypt(PROFILE[field]) };
   }
   // Only the worker answers /pii/<ciphertext>.

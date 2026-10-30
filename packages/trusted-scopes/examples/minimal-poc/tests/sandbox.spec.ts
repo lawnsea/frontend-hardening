@@ -57,5 +57,5 @@ test("the iframes have a null origin", async ({ page }) => {
 });
 
 test("the browser can't request a field from the PII server", async ({ page }) => {
-  expect((await page.request.get("/fields/name")).status()).toBe(404);
+  expect((await page.request.get("/pii/fields/name")).status()).toBe(404);
 });

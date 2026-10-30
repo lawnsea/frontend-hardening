@@ -36,7 +36,7 @@ export function router() {
             pending.delete(message.id);
           } else if (message.fetch) {
             const { server, url } = message.fetch;
-            child.send({ id: message.id, reply: await request(server, { method: "GET", url, headers: {} }) });
+            child.send({ id: message.id, reply: await request(server, { method: "GET", url, headers: {}, from: name }) });
           }
         });
         servers[name] = child;
