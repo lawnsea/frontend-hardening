@@ -26,7 +26,7 @@ This is not a new problem. Academia and industry have grappled with the challeng
 
 Because the PII frame is not from the same origin as the page, the browser prevents the page from reading the contents of the frame (or any other resource from the PII origin). As a result, the page and its origin are both untrusted.
 
-While this architecture achieves our goal of shrinking the application's TCB, it comes with some downsides. First, the application must ensure the origin only returns PII for authenticated requests. Second, each PII frame in the page degrades the application's robustness and performance, as each makes a network request to the PII origin that can fail or take a long time. Finally, the application must ensure that the PII is styled appropriately. This list is not exhaustive.
+While this architecture achieves our goal of shrinking the application's TCB, it comes with some downsides, including the following. First, the application must ensure the origin only returns PII for authenticated requests. Second, each PII frame in the page degrades the application's robustness and performance, as each makes a network request to the PII origin that can fail or take a long time.
 
 Browsers support another way for the web application to put the PII in a cross-origin iframe: the HTTP Content-Security-Policy (CSP) sandbox directive. The application can serve the PII frame on the page's origin, but ensure it is cross-origin to the page by including the CSP sandbox directive when returning the frame's HTML. Using a layer 7 router, the application can serve PII from a dedicated server and avoid trusting the rest of the web application.
 
@@ -38,13 +38,7 @@ This architecture removes the need for cross-origin authentication without signi
 
 ## A Minimal Proof-of-Concept
 
-See [`examples/minimal-poc`](../examples/minimal-poc) for a full proof-of-concept demonstrating this architecture. When the page loads with the service worker already installed:
-
-1. The page finds the worker's registration with `getRegistrations()` and sends the worker a message.
-2. The worker encrypts the string "setec astronomy" with its AES-GCM key and replies with the ciphertext.
-3. The page inserts `<iframe src="/sandbox#<ciphertext>">`.
-4. The worker answers the frame's request with a document that contains the key and a script, and with `Content-Security-Policy: sandbox allow-scripts`.
-5. The frame's script decrypts the fragment and displays the plaintext.
+This architecture avoids making a network request for each PII frame without significantly changing the size of the TCB. For clarity, however, it assumes the service worker is already in place when the page is loaded and omits the details of how this is accomplished. See [`examples/minimal-poc`](../examples/minimal-poc) for a full proof-of-concept that handles the details of installing the service worker. This PoC is intended only as a demonstration. *It is not production ready and has a number of vulnerabilities.*
 
 ## Necessary Constraints
 
