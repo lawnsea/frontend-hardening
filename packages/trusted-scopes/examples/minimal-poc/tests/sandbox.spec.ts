@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { PROFILE } from "../server.js";
+import { PROFILE } from "../profile-db.js";
 
 async function load(page: Page): Promise<void> {
   await page.goto("/profile");
@@ -54,4 +54,8 @@ test("the iframes have a null origin", async ({ page }) => {
   const frames = page.frames().filter((f) => new URL(f.url()).pathname.startsWith("/pii/"));
   expect(frames).toHaveLength(2);
   for (const frame of frames) expect(await frame.evaluate(() => self.origin)).toBe("null");
+});
+
+test("the browser can't request a field from the PII server", async ({ page }) => {
+  expect((await page.request.get("/fields/name")).status()).toBe(404);
 });
