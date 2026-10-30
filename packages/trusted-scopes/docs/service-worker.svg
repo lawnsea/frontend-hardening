@@ -57,13 +57,13 @@
     <text x="28" y="101" font-size="24" font-weight="bold">Profile</text>
 
     <text x="100" y="152" text-anchor="end" font-weight="bold">Name:</text>
-    <text x="106" y="124" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="9">&lt;iframe src="/pii/&lt;encrypted PII&gt;"&gt;</text>
+    <text x="106" y="124" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="9">&lt;iframe src="/pii/abc123"&gt;</text>
     <rect x="106" y="128" width="232" height="38" fill="#fff" stroke="#333"/>
     <rect x="112" y="134" width="220" height="26" fill="#fff" stroke="#333" stroke-dasharray="5 5"/>
     <text x="120" y="152">Roberta Jean Oppenheimer</text>
 
     <text x="100" y="210" text-anchor="end" font-weight="bold">Address:</text>
-    <text x="106" y="182" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="9">&lt;iframe src="/pii/&lt;encrypted PII&gt;"&gt;</text>
+    <text x="106" y="182" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="9">&lt;iframe src="/pii/def456"&gt;</text>
     <rect x="106" y="186" width="232" height="56" fill="#fff" stroke="#333"/>
     <rect x="112" y="192" width="161" height="44" fill="#fff" stroke="#333" stroke-dasharray="5 5"/>
     <text x="120" y="210">1701D Enterprise Loop<tspan x="120" dy="18">Hollywood, CA 90068</tspan></text>
@@ -102,11 +102,11 @@
   <line x1="878" y1="140" x2="392" y2="140" stroke="#333" marker-end="url(#arrowhead)"/>
   <text x="400" y="158" font-size="13">200 OK &lt;html...</text>
   <line x1="340" y1="202" x2="598" y2="202" stroke="#333" marker-end="url(#arrowhead)"/>
-  <text x="400" y="196" font-size="13">GET /pii/&lt;encrypted PII&gt;</text>
+  <text x="400" y="196" font-size="13">GET /pii/abc123</text>
   <line x1="598" y1="212" x2="340" y2="212" stroke="#333" marker-end="url(#arrowhead)"/>
   <text x="400" y="227" font-size="13">200 OK<tspan x="400" dy="13" font-size="11">Content-Security-Policy: sandbox</tspan></text>
   <line x1="340" y1="269" x2="598" y2="269" stroke="#333" marker-end="url(#arrowhead)"/>
-  <text x="400" y="263" font-size="13">GET /pii/&lt;encrypted PII&gt;</text>
+  <text x="400" y="263" font-size="13">GET /pii/def456</text>
   <line x1="598" y1="279" x2="340" y2="279" stroke="#333" marker-end="url(#arrowhead)"/>
   <text x="400" y="294" font-size="13">200 OK<tspan x="400" dy="13" font-size="11">Content-Security-Policy: sandbox</tspan></text>
 
