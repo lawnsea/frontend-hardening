@@ -36,7 +36,9 @@ One way: the page receives only PII ciphertext and displays it in `<iframe src="
 
 Each frame costs a network round trip, so this is slow, and a network disruption stops the PII from rendering.
 
-Instead, a service worker hosted at `/pii/sw.js` and registered with scope `/pii/` can answer the request for the frame's document locally.
+This architecture removes the need for cross-origin authentication without significantly changing the size of the TCB. However, each PII frame still requires a network round trip to render. Using a service worker, the application can serve the PII frame from the browser without making a network request, but the worker code would need to include any PII data the page needs, which is inconvenient. Instead, we can encrypt the PII in the page and include the key in the service worker code.
+
+![The same profile page, with the name and address each in an iframe from /pii/<encrypted PII>. At https://example.com:443, a layer 7 router routes /pii/* to a PII server and other paths, including /profile, to the web server. The web server fetches the encrypted PII from the PII server and puts it in each iframe's src. A service worker in the browser fetches its code, /pii/sw.js, from the PII server, then answers each iframe's request without the network, responding with the decrypted PII and Content-Security-Policy: sandbox. The browser, the iframes, the service worker, the router, and the PII server are trusted. The rest of the page and the web server are untrusted.](service-worker.svg)
 
 ## A Minimal Proof-of-Concept
 
