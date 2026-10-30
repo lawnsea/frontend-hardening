@@ -75,10 +75,6 @@
   <!-- Service worker, in the browser -->
   <rect x="600" y="185" width="80" height="115" rx="3" fill="#fff" stroke="#333"/>
   <text x="640" y="318" text-anchor="middle" font-size="13">Service worker</text>
-  <line x1="682" y1="235" x2="878" y2="235" stroke="#333" marker-end="url(#arrowhead)"/>
-  <text x="690" y="229" font-size="13">GET /pii/sw.js</text>
-  <line x1="878" y1="245" x2="682" y2="245" stroke="#333" marker-end="url(#arrowhead)"/>
-  <text x="690" y="263" font-size="13">200 OK</text>
 
   <!-- example.com -->
   <use href="#cloud" x="820" y="10" width="460" height="390" fill="#fff"/>
@@ -97,6 +93,10 @@
   <text x="1083" y="209" font-size="13">encrypted PII</text>
 
   <!-- Requests and responses -->
+  <line x1="682" y1="235" x2="878" y2="235" stroke="#333" marker-end="url(#arrowhead)"/>
+  <text x="690" y="229" font-size="13">GET /pii/sw.js</text>
+  <line x1="878" y1="245" x2="682" y2="245" stroke="#333" marker-end="url(#arrowhead)"/>
+  <text x="690" y="263" font-size="13">200 OK</text>
   <line x1="392" y1="130" x2="878" y2="130" stroke="#333" marker-end="url(#arrowhead)"/>
   <text x="400" y="124" font-size="13">GET /profile</text>
   <line x1="878" y1="140" x2="392" y2="140" stroke="#333" marker-end="url(#arrowhead)"/>
