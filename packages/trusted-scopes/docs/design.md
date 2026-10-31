@@ -50,7 +50,7 @@ Any client, not only the page, can request `/pii/sw.js` and read the key. To pre
 
 ##### The page can read the worker's source
 
-The page can fetch `/pii/sw.js` directly or from the browser's cache and read the key. To prevent this, the server must return the service worker only for requests with the [`Sec-Fetch-Dest: serviceworker`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Sec-Fetch-Dest) header, which scripts can't set.  Otherwise, it should return `403 Forbidden`. It also must set the `Cache-Control: no-store` header on its response, so the page can't read it from the HTTP cache.
+The page can fetch `/pii/sw.js` directly or from the browser's cache and read the key. To prevent this, the server must return the service worker only for requests with the [`Sec-Fetch-Dest: serviceworker`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Sec-Fetch-Dest) header, which scripts can't set. Otherwise, it must return `403 Forbidden`. It also must set the `Cache-Control: no-store` header on its response, so the page can't read it from the HTTP cache.
 
 ##### The page can read the frame's document
 
