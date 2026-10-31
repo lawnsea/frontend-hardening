@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1290" height="420" viewBox="0 0 1290 420" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" fill="#000">
+  <defs>
+    <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#333"/>
+    </marker>
+    <symbol id="lock" viewBox="0 0 12 16" overflow="visible">
+      <path d="M2,7 v-3 a4,4 0 0 1 8,0 v3" fill="none" stroke="#333" stroke-width="1.5"/>
+      <rect y="7" width="12" height="9" rx="1.5" fill="#333"/>
+    </symbol>
+    <symbol id="cloud" viewBox="0 0 270 222" preserveAspectRatio="none" overflow="visible">
+      <path d="M32,197.1
+             A37,28.9 0 0 1 18,148.7
+             A43,33.6 0 0 1 20,94
+             A45,35.2 0 0 1 45,40.8
+             A37,28.9 0 0 1 100,15.5
+             A43,33.6 0 0 1 170,15.5
+             A37,28.9 0 0 1 225,40.8
+             A45,35.2 0 0 1 250,94
+             A43,33.6 0 0 1 252,148.7
+             A37,28.9 0 0 1 238,197.1
+             A33,25.8 0 0 1 180,206.5
+             A53,41.5 0 0 1 100,206.5
+             A42,32.9 0 0 1 32,197.1 z" fill="inherit" stroke="#333" vector-effect="non-scaling-stroke"/>
+    </symbol>
+    <symbol id="server" viewBox="0 0 70 105.6" preserveAspectRatio="none" overflow="visible">
+      <rect width="70" height="105.6" rx="3" fill="inherit" stroke="#333" vector-effect="non-scaling-stroke"/>
+      <rect x="7" y="5.4" width="56" height="7.9" rx="1" fill="inherit" stroke="#333" vector-effect="non-scaling-stroke"/>
+      <rect x="7" y="16.4" width="56" height="7.9" rx="1" fill="inherit" stroke="#333" vector-effect="non-scaling-stroke"/>
+      <rect x="7" y="27.3" width="56" height="7.9" rx="1" fill="inherit" stroke="#333" vector-effect="non-scaling-stroke"/>
+    </symbol>
+    <symbol id="legend" viewBox="0 0 70 60" overflow="visible">
+      <rect width="12" height="12" fill="#fff" stroke="#333"/>
+      <text x="20" y="10" font-size="10.5">Trusted</text>
+      <rect y="21" width="12" height="12" fill="#ccc" stroke="#333"/>
+      <text x="20" y="31" font-size="10.5">Untrusted</text>
+      <rect y="42" width="12" height="12" fill="#fff" stroke="#333" stroke-dasharray="3 2"/>
+      <text x="20" y="52" font-size="10.5">PII</text>
+    </symbol>
+  </defs>
+  <rect width="1290" height="420" fill="#fff"/>
+
+  <!-- Browser window -->
+  <g transform="translate(0,60)">
+    <rect x="10" y="10" width="380" height="274" rx="8" fill="#fff" stroke="#333"/>
+    <rect x="14" y="14" width="372" height="28" rx="8" fill="#fff" stroke="#333"/>
+    <use href="#lock" x="23" y="18" width="12" height="16"/>
+    <text x="44" y="33" font-size="13">example.com/profile</text>
+    <path d="M10.5,46 H389.5 V276 A7.5,7.5 0 0 1 382,283.5 H18 A7.5,7.5 0 0 1 10.5,276 Z" fill="#ccc"/>
+    <line x1="10" y1="46" x2="390" y2="46" stroke="#333"/>
+
+    <text x="16" y="60" font-size="11.25" font-weight="bold">MyExample</text>
+    <text x="97" y="60" font-size="9.75">Home</text>
+    <text x="141" y="60" font-size="9.75">Samples</text>
+    <text x="197" y="60" font-size="9.75">Exemplars</text>
+    <text x="384" y="60" font-size="9.75" text-anchor="end">Profile</text>
+    <line x1="10" y1="65" x2="390" y2="65" stroke="#999"/>
+    <text x="28" y="101" font-size="24" font-weight="bold">Profile</text>
+
+    <text x="100" y="152" text-anchor="end" font-weight="bold">Name:</text>
+    <text x="106" y="124" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="9">&lt;iframe src="/pii/abc123"&gt;</text>
+    <rect x="106" y="128" width="232" height="38" fill="#fff" stroke="#333"/>
+    <rect x="112" y="134" width="220" height="26" fill="#fff" stroke="#333" stroke-dasharray="5 5"/>
+    <text x="120" y="152">Roberta Jean Oppenheimer</text>
+
+    <text x="100" y="210" text-anchor="end" font-weight="bold">Address:</text>
+    <text x="106" y="182" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="9">&lt;iframe src="/pii/def456"&gt;</text>
+    <rect x="106" y="186" width="232" height="56" fill="#fff" stroke="#333"/>
+    <rect x="112" y="192" width="161" height="44" fill="#fff" stroke="#333" stroke-dasharray="5 5"/>
+    <text x="120" y="210">1701D Enterprise Loop<tspan x="120" dy="18">Hollywood, CA 90068</tspan></text>
+
+    <text x="100" y="268" text-anchor="end" font-weight="bold">Theme:</text>
+    <text x="114" y="268">Dark</text>
+  </g>
+
+  <!-- Service worker, in the browser -->
+  <rect x="600" y="185" width="80" height="115" rx="3" fill="#fff" stroke="#333"/>
+  <text x="640" y="318" text-anchor="middle" font-size="13">Service worker</text>
+
+  <!-- example.com -->
+  <use href="#cloud" x="820" y="10" width="460" height="390" fill="#fff"/>
+  <text x="1050" y="85" text-anchor="middle" font-size="13">https://example.com:443</text>
+  <rect x="880" y="115" width="60" height="180" rx="3" fill="#fff" stroke="#333"/>
+  <text x="910" y="315" text-anchor="middle" font-size="13">L7 router</text>
+  <use href="#server" x="1040" y="100" width="70" height="80" fill="#ccc"/>
+  <text x="1120" y="145" font-size="13">Web server</text>
+  <use href="#server" x="1040" y="230" width="70" height="80" fill="#fff"/>
+  <text x="1120" y="275" font-size="13">PII server</text>
+  <line x1="942" y1="145" x2="1038" y2="145" stroke="#333" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
+  <text x="990" y="137" text-anchor="middle" font-size="13">other paths</text>
+  <line x1="942" y1="265" x2="1038" y2="265" stroke="#333" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
+  <text x="990" y="257" text-anchor="middle" font-size="13">/pii/*</text>
+  <line x1="1075" y1="182" x2="1075" y2="228" stroke="#333" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
+  <text x="1083" y="209" font-size="13">encrypted PII</text>
+
+  <!-- Requests and responses -->
+  <line x1="682" y1="235" x2="878" y2="235" stroke="#333" marker-end="url(#arrowhead)"/>
+  <text x="690" y="229" font-size="13">GET /pii/sw.js</text>
+  <line x1="878" y1="245" x2="682" y2="245" stroke="#333" marker-end="url(#arrowhead)"/>
+  <text x="690" y="263" font-size="13">200 OK</text>
+  <line x1="392" y1="130" x2="878" y2="130" stroke="#333" marker-end="url(#arrowhead)"/>
+  <text x="400" y="124" font-size="13">GET /profile</text>
+  <line x1="878" y1="140" x2="392" y2="140" stroke="#333" marker-end="url(#arrowhead)"/>
+  <text x="400" y="158" font-size="13">200 OK &lt;html...</text>
+  <line x1="340" y1="202" x2="598" y2="202" stroke="#333" marker-end="url(#arrowhead)"/>
+  <text x="400" y="196" font-size="13">GET /pii/abc123</text>
+  <line x1="598" y1="212" x2="340" y2="212" stroke="#333" marker-end="url(#arrowhead)"/>
+  <text x="400" y="227" font-size="13">200 OK<tspan x="400" dy="13" font-size="11">Content-Security-Policy: sandbox</tspan></text>
+  <line x1="340" y1="269" x2="598" y2="269" stroke="#333" marker-end="url(#arrowhead)"/>
+  <text x="400" y="263" font-size="13">GET /pii/def456</text>
+  <line x1="598" y1="279" x2="340" y2="279" stroke="#333" marker-end="url(#arrowhead)"/>
+  <text x="400" y="294" font-size="13">200 OK<tspan x="400" dy="13" font-size="11">Content-Security-Policy: sandbox</tspan></text>
+
+  <!-- Legend -->
+  <g transform="translate(0,97)">
+    <use href="#legend" x="10" y="261" width="70" height="60"/>
+  </g>
+</svg>

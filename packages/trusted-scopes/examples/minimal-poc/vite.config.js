@@ -1,5 +1,4 @@
 import { defineConfig } from "vite";
+import { router } from "./router.js";
 
-// Without a fallback, /sandbox gets a 404 when the worker isn't active,
-// instead of index.html.
-export default defineConfig({ appType: "mpa" });
+export default defineConfig({ plugins: [router()] });
