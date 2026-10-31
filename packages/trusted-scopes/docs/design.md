@@ -46,12 +46,12 @@ This architecture avoids making a network request for each PII frame without sig
 
 ##### Any client can read the secret
 
-Any client, not only the page, can request `/pii/sw.js` and read the key. To prevent this, the server must return the worker's script only for authenticated requests, and return an error otherwise.
+Any client, not only the page, can request `/pii/sw.js` and read the key. To prevent this, the server must return the service worker only for authenticated requests, and return an error otherwise.
 
 ##### The page can read the worker's source
 
-Any page script can fetch `/pii/sw.js` and read the key. To prevent this, the server must serve the worker's script only to requests with [`Sec-Fetch-Dest: serviceworker`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Sec-Fetch-Dest), which scripts can't set, and [`Service-Worker: script`](https://w3c.github.io/ServiceWorker/#service-worker), and with `Cache-Control: no-store`, so the page can't read it from the HTTP cache. If either header is missing, the server must return `403 Forbidden`.
+The page can fetch `/pii/sw.js` directly or from the browser's cache and read the key. To prevent this, the server must return the service worker only for requests with the [`Sec-Fetch-Dest: serviceworker`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Sec-Fetch-Dest) header, which scripts can't set.  Otherwise, it should return `403 Forbidden`. It also must set the `Cache-Control: no-store` header on its response, so the page can't read it from the HTTP cache.
 
 ##### The page can read the frame's document
 
-The worker answers every request for `/pii/<ciphertext>`, not only navigations, and the `sandbox` directive doesn't apply to a `fetch` response. The page can create a same-origin iframe the worker controls, such as one at `/pii/x`, and call that frame's `fetch("/pii/abc123")` to read the key. To prevent this, the worker must only respond to requests whose [`mode`](https://developer.mozilla.org/en-US/docs/Web/API/Request/mode) is `"navigate"` and whose [`destination`](https://developer.mozilla.org/en-US/docs/Web/API/Request/destination) is `"iframe"`, which scripts can't set.
+The worker answers every request for `/pii/<ciphertext>`, but the `sandbox` directive only applies to navigations. The page can create a same-origin iframe that fetches the PII (by calling `fetch("/pii/abc123")`, e.g.) and read the PII from the response. To prevent this, the worker must only respond to requests whose [`mode`](https://developer.mozilla.org/en-US/docs/Web/API/Request/mode) is `"navigate"` and whose [`destination`](https://developer.mozilla.org/en-US/docs/Web/API/Request/destination) is `"iframe"`, which scripts can't set, and return an error otherwise.
