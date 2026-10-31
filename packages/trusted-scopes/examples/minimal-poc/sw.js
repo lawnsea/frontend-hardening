@@ -3,12 +3,11 @@
 addEventListener("install", () => skipWaiting());
 addEventListener("fetch", (event) => {
   const { pathname } = new URL(event.request.url);
-  if (pathname.startsWith("/pii/") && pathname !== "/pii/sw.js") {
+  if (pathname.startsWith("/pii/")) {
     event.respondWith(frame(pathname.slice("/pii/".length)));
   }
 });
 
-// Expects base64url(IV || AES-GCM output), with a 12-byte IV.
 async function decrypt(ciphertext) {
   const key = await crypto.subtle.importKey(
     "raw",
@@ -22,14 +21,10 @@ async function decrypt(ciphertext) {
   return new TextDecoder().decode(plaintext);
 }
 
-function escapeHtml(text) {
-  return text.replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
-}
-
 async function frame(ciphertext) {
   const html = `<!doctype html>
 <meta charset="utf-8">
-<body style="white-space: pre-line">${escapeHtml(await decrypt(ciphertext))}</body>
+<body style="white-space: pre-line">${await decrypt(ciphertext)}</body>
 `;
   return new Response(html, {
     headers: {
