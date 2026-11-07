@@ -12,7 +12,7 @@
 
 # Built-in Pollution
 
-Similar to [prototype pollution](#prototype-pollution), but the attacker compromises properties of the [global object](https://developer.mozilla.org/en-US/docs/Glossary/Global_object) directly.
+Similar to [prototype pollution](#prototype-pollution), but the attacker compromises a property of a [built-in global object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects) directly.
 
 # Content Security Policy
 
