@@ -12,7 +12,7 @@ export default defineConfig({
   ],
   webServer: {
     command: `pnpm exec vite --port ${PORT} --strictPort`,
-    url: `http://localhost:${PORT}/index.html`,
+    url: `http://localhost:${PORT}/profile`,
     reuseExistingServer: !process.env.CI,
   },
 });
