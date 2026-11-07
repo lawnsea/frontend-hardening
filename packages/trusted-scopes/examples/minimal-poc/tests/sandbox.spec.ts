@@ -59,3 +59,48 @@ test("the iframes have a null origin", async ({ page }) => {
 test("the browser can't request a field from the PII server", async ({ page }) => {
   expect((await page.request.get("/pii/fields/name")).status()).toBe(404);
 });
+
+test("the page can't fetch the worker's source", async ({ page }) => {
+  await load(page);
+  const { status, body } = await page.evaluate(async () => {
+    const response = await fetch("/pii/sw.js");
+    return { status: response.status, body: await response.text() };
+  });
+  expect(status).toBe(403);
+  expect(body).not.toContain("RAW_KEY");
+});
+
+test("the page can't read the worker's source from the HTTP cache", async ({ page }) => {
+  await load(page);
+  for (const cache of ["force-cache", "only-if-cached"] as const) {
+    const body = await page.evaluate(
+      (cache) =>
+        fetch("/pii/sw.js", { cache, mode: "same-origin" }).then(
+          (response) => response.text(),
+          () => "",
+        ),
+      cache,
+    );
+    expect(body).not.toContain("RAW_KEY");
+  }
+});
+
+test("the page can't read the worker's source with the Cache API", async ({ page }) => {
+  await load(page);
+  const { added, matched } = await page.evaluate(async () => {
+    const cache = await caches.open("minimal-poc");
+    const added = await cache.add("/pii/sw.js").then(
+      () => true,
+      () => false,
+    );
+    return { added, matched: (await caches.match("/pii/sw.js")) !== undefined };
+  });
+  expect(added).toBe(false);
+  expect(matched).toBe(false);
+});
+
+test("the server forbids caching the worker's source", async ({ page }) => {
+  const response = await page.request.get("/pii/sw.js", { headers: { "Sec-Fetch-Dest": "serviceworker" } });
+  expect(response.status()).toBe(200);
+  expect(response.headers()["cache-control"]).toBe("no-store");
+});

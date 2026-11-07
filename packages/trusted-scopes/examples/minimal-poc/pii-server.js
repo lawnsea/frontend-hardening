@@ -18,10 +18,15 @@ async function worker() {
   return `const RAW_KEY = ${JSON.stringify(RAW_KEY)};\n${source}`;
 }
 
-serve(async ({ url, from }) => {
+serve(async ({ url, headers, from }) => {
   const { pathname } = new URL(url, "http://localhost");
   if (pathname === "/pii/sw.js") {
-    return { status: 200, headers: { "Content-Type": "text/javascript; charset=utf-8" }, body: await worker() };
+    if (headers["sec-fetch-dest"] !== "serviceworker") return { status: 403, headers: {}, body: "" };
+    return {
+      status: 200,
+      headers: { "Content-Type": "text/javascript; charset=utf-8", "Cache-Control": "no-store" },
+      body: await worker(),
+    };
   }
   const field = pathname.match(/^\/pii\/fields\/(\w+)$/)?.[1];
   if (from === "profile" && field && Object.hasOwn(PROFILE, field)) {

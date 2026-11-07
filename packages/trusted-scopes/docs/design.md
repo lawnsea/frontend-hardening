@@ -34,7 +34,9 @@ Browsers support another way for the web application to put the PII in a cross-o
 
 This architecture removes the need for cross-origin authentication without significantly changing the size of the TCB. However, each PII frame still requires a network round trip to render. Using a service worker, the application can serve the PII frame from the browser without making a network request, but the worker code would need to include any PII data the page needs, which is inconvenient. Instead, we can encrypt the PII in the page and include the key in the service worker code.
 
-![The same profile page, with the name and address each in an iframe whose src is /pii/ followed by the field's ciphertext, such as /pii/abc123. At https://example.com:443, a layer 7 router routes /pii/* to a PII server and other paths, including /profile, to the web server. The web server fetches the encrypted PII from the PII server and puts it in each iframe's src. A service worker in the browser fetches its code, /pii/sw.js, from the PII server, then answers each iframe's request without the network, responding with the decrypted PII and Content-Security-Policy: sandbox. The browser, the iframes, the service worker, the router, and the PII server are trusted. The rest of the page and the web server are untrusted.](service-worker.svg)
+The page can fetch `/pii/sw.js` directly or from the browser's cache and read the key. To prevent this, the server must return the service worker only for requests with the [`Sec-Fetch-Dest: serviceworker`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Sec-Fetch-Dest) header, which scripts can't set. Otherwise, it must return `403 Forbidden`. It also must set the `Cache-Control: no-store` header on its response, so the page can't read it from the HTTP cache.
+
+![The same profile page, with the name and address each in an iframe whose src is /pii/ followed by the field's ciphertext, such as /pii/abc123. At https://example.com:443, a layer 7 router routes /pii/* to a PII server and other paths, including /profile, to the web server. The web server fetches the encrypted PII from the PII server and puts it in each iframe's src. A service worker in the browser fetches its code, /pii/sw.js, from the PII server with Sec-Fetch-Dest: serviceworker, which responds with Cache-Control: no-store. The worker then answers each iframe's request without the network, responding with the decrypted PII and Content-Security-Policy: sandbox. The browser, the iframes, the service worker, the router, and the PII server are trusted. The rest of the page and the web server are untrusted.](service-worker.svg)
 
 ## A Minimal Proof-of-Concept
 
@@ -42,12 +44,8 @@ This architecture avoids making a network request for each PII frame without sig
 
 ### Vulnerabilities
 
-#### Confidentiality
+#### Out of scope
 
 ##### Any client can read the secret
 
 Any client, not only the page, can request `/pii/sw.js` and read the key. To prevent this, the server must return the service worker only for authenticated requests, and return an error otherwise.
-
-##### The page can read the worker's source
-
-The page can fetch `/pii/sw.js` directly or from the browser's cache and read the key. To prevent this, the server must return the service worker only for requests with the [`Sec-Fetch-Dest: serviceworker`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Sec-Fetch-Dest) header, which scripts can't set. Otherwise, it must return `403 Forbidden`. It also must set the `Cache-Control: no-store` header on its response, so the page can't read it from the HTTP cache.
