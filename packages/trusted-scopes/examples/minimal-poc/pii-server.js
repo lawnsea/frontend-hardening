@@ -21,7 +21,9 @@ async function worker() {
 serve(async ({ url, headers, from }) => {
   const { pathname } = new URL(url, "http://localhost");
   if (pathname === "/pii/sw.js") {
-    if (headers["sec-fetch-dest"] !== "serviceworker") return { status: 403, headers: {}, body: "" };
+    if (headers["sec-fetch-dest"] !== "serviceworker" || headers["service-worker"] !== "script") {
+      return { status: 403, headers: {}, body: "" };
+    }
     return {
       status: 200,
       headers: { "Content-Type": "text/javascript; charset=utf-8", "Cache-Control": "no-store" },

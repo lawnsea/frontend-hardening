@@ -70,6 +70,15 @@ test("the page can't fetch the worker's source", async ({ page }) => {
   expect(body).not.toContain("RAW_KEY");
 });
 
+test("the page can't fetch the worker's source by setting the Service-Worker header", async ({ page }) => {
+  await load(page);
+  const status = await page.evaluate(async () => {
+    const response = await fetch("/pii/sw.js", { headers: { "Service-Worker": "script" } });
+    return response.status;
+  });
+  expect(status).toBe(403);
+});
+
 test("the page can't read the worker's source from the HTTP cache", async ({ page }) => {
   await load(page);
   for (const cache of ["force-cache", "only-if-cached"] as const) {
@@ -99,8 +108,17 @@ test("the page can't read the worker's source with the Cache API", async ({ page
   expect(matched).toBe(false);
 });
 
+test("the server requires both headers for the worker's source", async ({ page }) => {
+  const dest = { "Sec-Fetch-Dest": "serviceworker" };
+  const script = { "Service-Worker": "script" };
+  expect((await page.request.get("/pii/sw.js", { headers: dest })).status()).toBe(403);
+  expect((await page.request.get("/pii/sw.js", { headers: script })).status()).toBe(403);
+  expect((await page.request.get("/pii/sw.js", { headers: { ...dest, ...script } })).status()).toBe(200);
+});
+
 test("the server forbids caching the worker's source", async ({ page }) => {
-  const response = await page.request.get("/pii/sw.js", { headers: { "Sec-Fetch-Dest": "serviceworker" } });
+  const headers = { "Sec-Fetch-Dest": "serviceworker", "Service-Worker": "script" };
+  const response = await page.request.get("/pii/sw.js", { headers });
   expect(response.status()).toBe(200);
   expect(response.headers()["cache-control"]).toBe("no-store");
 });
@@ -133,4 +151,18 @@ test("a claimed document can't fetch the plaintext", async ({ page, context, bro
   }, ciphertext);
   expect(status).toBe(403);
   expect(body).not.toContain(PROFILE.name);
+});
+
+test("a poisoning worker can't steal the key", async ({ page }) => {
+  await load(page);
+  // Firefox never settles this registration, so give up after a while.
+  const stolen = await page.evaluate(
+    () =>
+      new Promise((resolve) => {
+        setTimeout(() => resolve(null), 2000);
+        navigator.serviceWorker.addEventListener("message", (event) => resolve(event.data));
+        navigator.serviceWorker.register("/poison-sw.js", { scope: "/poison/", type: "module" }).catch(() => resolve(null));
+      }),
+  );
+  expect(stolen).toBeNull();
 });
