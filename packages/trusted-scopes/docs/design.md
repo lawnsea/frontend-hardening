@@ -68,16 +68,12 @@ The service worker
 - returns an error for a request for an iframe if the request's `destination` is not `iframe`
 - includes a CSP sandbox directive that does not include the `allow-same-origin` permission when responding with the iframe document
 
-Given these conditions, an attacker cannot compromise the secret's confidentiality or integrity.
+Given these conditions, an attacker cannot compromise the secret's confidentiality or integrity except via side channel attacks like Spectre.
+
+### Site Isolation
+
+The page can mount a Spectre attack on the service worker to read the secret, since the worker is from the same site as the page and thus not isolated from it.
 
 ## A Minimal Proof-of-Concept
 
 This architecture avoids making a network request for each PII frame without significantly changing the size of the TCB. For clarity, however, it assumes the service worker is already in place when the page is loaded and omits the details of how this is accomplished. See [`examples/minimal-poc`](../examples/minimal-poc) for a full proof-of-concept that handles the details of installing the service worker. This PoC is intended only as a demonstration of the trusted scope primitive. *It is not production ready.*
-
-### Vulnerabilities
-
-#### Out of scope
-
-##### Any client can read the secret
-
-Any client, not only the page, can request `/pii/sw.js` and read the key. To prevent this, the server must return the service worker only for authenticated requests, and return an error otherwise.
