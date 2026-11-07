@@ -104,3 +104,33 @@ test("the server forbids caching the worker's source", async ({ page }) => {
   expect(response.status()).toBe(200);
   expect(response.headers()["cache-control"]).toBe("no-store");
 });
+
+test("the worker only answers iframes", async ({ page }) => {
+  await load(page);
+  const src = await page.evaluate(() => document.querySelector("iframe")!.src);
+  const [popup] = await Promise.all([page.waitForEvent("popup"), page.evaluate((src) => void window.open(src), src)]);
+  await popup.waitForURL(src, { waitUntil: "commit" });
+  await popup.waitForLoadState("domcontentloaded");
+  await expect(popup.locator("body")).not.toContainText(PROFILE.name);
+});
+
+test("a claimed document can't fetch the plaintext", async ({ page, context, browserName }) => {
+  test.skip(browserName !== "chromium", "Only Chromium lets Playwright run code in a service worker");
+
+  const ciphertext = (await (await page.request.get("/profile")).text()).match(/data-pii="([^"]+)"/)![1];
+  await page.goto("/pii/early");
+  const [worker] = await Promise.all([
+    context.waitForEvent("serviceworker"),
+    page.evaluate(() => navigator.serviceWorker.register("/pii/sw.js", { scope: "/pii/" }).then(() => {})),
+  ]);
+  await page.evaluate(() => navigator.serviceWorker.ready.then(() => {}));
+  await worker.evaluate("clients.claim()");
+  await page.waitForFunction(() => navigator.serviceWorker.controller);
+
+  const { status, body } = await page.evaluate(async (ciphertext) => {
+    const response = await fetch(`/pii/${ciphertext}`);
+    return { status: response.status, body: await response.text() };
+  }, ciphertext);
+  expect(status).toBe(403);
+  expect(body).not.toContain(PROFILE.name);
+});

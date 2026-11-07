@@ -4,7 +4,8 @@ addEventListener("install", () => skipWaiting());
 addEventListener("fetch", (event) => {
   const { pathname } = new URL(event.request.url);
   if (pathname.startsWith("/pii/")) {
-    event.respondWith(frame(pathname.slice("/pii/".length)));
+    const isFrame = event.request.destination === "iframe";
+    event.respondWith(isFrame ? frame(pathname.slice("/pii/".length)) : new Response(null, { status: 403 }));
   }
 });
 
