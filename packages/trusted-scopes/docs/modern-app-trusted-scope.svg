@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="660" viewBox="0 0 1700 660" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" fill="#000">
+<svg xmlns="http://www.w3.org/2000/svg" width="1780" height="690" viewBox="0 0 1780 690" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" fill="#000">
   <defs>
     <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M0,0 L10,5 L0,10 z" fill="#333"/>
@@ -41,7 +41,7 @@
       <path d="M0,10 A35,10 0 0 0 70,10" fill="none" stroke="#333" vector-effect="non-scaling-stroke"/>
     </symbol>
   </defs>
-  <rect width="1700" height="660" fill="#fff"/>
+  <rect width="1780" height="690" fill="#fff"/>
 
   <!-- Browser window -->
   <g transform="translate(0,120)">
@@ -81,62 +81,64 @@
   <text x="640" y="378" text-anchor="middle" font-size="13">Service worker</text>
 
   <!-- Origin -->
-  <use href="#cloud" x="820" y="10" width="880" height="640" fill="#fff"/>
-  <text x="1250" y="105" text-anchor="middle" font-size="13">https://example.com:443</text>
-  <rect x="920" y="140" width="60" height="260" rx="3" fill="#fff" stroke="#333"/>
-  <text x="950" y="420" text-anchor="middle" font-size="13">L7 router</text>
+  <use href="#cloud" x="820" y="10" width="950" height="600" fill="#fff"/>
+  <text x="1320" y="105" text-anchor="middle" font-size="13">https://example.com:443</text>
+  <rect x="990" y="140" width="60" height="260" rx="3" fill="#fff" stroke="#333"/>
+  <text x="1020" y="420" text-anchor="middle" font-size="13">L7 router</text>
 
-  <text x="1125" y="150" text-anchor="middle" font-size="13">Web server</text>
-  <text x="1245" y="150" text-anchor="middle" font-size="13">GraphQL server</text>
-  <text x="1365" y="150" text-anchor="middle" font-size="13">Profile service</text>
-  <text x="1485" y="150" text-anchor="middle" font-size="13">Profile DB</text>
-  <use href="#server" x="1090" y="160" width="70" height="90" fill="#ccc"/>
-  <use href="#server" x="1210" y="160" width="70" height="90" fill="#ccc"/>
-  <use href="#server" x="1330" y="160" width="70" height="90" fill="#ccc"/>
-  <use href="#database" x="1450" y="160" width="70" height="90" fill="#ccc"/>
-  <line x1="1162" y1="180" x2="1208" y2="180" stroke="#333" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
-  <line x1="1282" y1="180" x2="1328" y2="180" stroke="#333" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
-  <line x1="1402" y1="180" x2="1448" y2="180" stroke="#333" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
+  <text x="1195" y="150" text-anchor="middle" font-size="13">Web server</text>
+  <text x="1315" y="150" text-anchor="middle" font-size="13">GraphQL server</text>
+  <text x="1435" y="150" text-anchor="middle" font-size="13">Profile service</text>
+  <text x="1555" y="150" text-anchor="middle" font-size="13">Profile DB</text>
+  <use href="#server" x="1160" y="160" width="70" height="90" fill="#ccc"/>
+  <use href="#server" x="1280" y="160" width="70" height="90" fill="#ccc"/>
+  <use href="#server" x="1400" y="160" width="70" height="90" fill="#ccc"/>
+  <use href="#database" x="1520" y="160" width="70" height="90" fill="#ccc"/>
+  <line x1="1232" y1="180" x2="1278" y2="180" stroke="#333" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
+  <line x1="1352" y1="180" x2="1398" y2="180" stroke="#333" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
+  <line x1="1472" y1="180" x2="1518" y2="180" stroke="#333" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
 
-  <use href="#server" x="1210" y="310" width="70" height="80" fill="#fff"/>
-  <use href="#database" x="1330" y="310" width="70" height="80" fill="#fff"/>
-  <text x="1245" y="410" text-anchor="middle" font-size="13">PII service</text>
-  <text x="1365" y="410" text-anchor="middle" font-size="13">PII DB</text>
-  <line x1="1282" y1="330" x2="1328" y2="330" stroke="#333" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
-  <line x1="1245" y1="252" x2="1245" y2="308" stroke="#333" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
-  <text x="1253" y="285" font-size="13">encrypted PII</text>
+  <use href="#server" x="1280" y="310" width="70" height="80" fill="#fff"/>
+  <use href="#database" x="1400" y="310" width="70" height="80" fill="#fff"/>
+  <text x="1315" y="410" text-anchor="middle" font-size="13">PII service</text>
+  <text x="1435" y="410" text-anchor="middle" font-size="13">PII DB</text>
+  <line x1="1352" y1="330" x2="1398" y2="330" stroke="#333" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
+  <line x1="1315" y1="252" x2="1315" y2="308" stroke="#333" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
+  <text x="1323" y="285" font-size="13">encrypted PII</text>
 
-  <line x1="982" y1="220" x2="1088" y2="220" stroke="#333" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
-  <text x="1035" y="212" text-anchor="middle" font-size="13">other paths</text>
-  <line x1="982" y1="360" x2="1208" y2="360" stroke="#333" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
-  <text x="1095" y="352" text-anchor="middle" font-size="13">/pii/*</text>
+  <line x1="1052" y1="220" x2="1158" y2="220" stroke="#333" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
+  <text x="1105" y="212" text-anchor="middle" font-size="13">other paths</text>
+  <line x1="1052" y1="360" x2="1278" y2="360" stroke="#333" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
+  <text x="1165" y="352" text-anchor="middle" font-size="13">/pii/*</text>
 
   <!-- Build and deploy -->
-  <path d="M920,432 Q920,442 930,442 H1210 Q1220,442 1220,452 Q1220,442 1230,442 H1510 Q1520,442 1520,432" fill="none" stroke="#333"/>
-  <line x1="1220" y1="490" x2="1220" y2="456" stroke="#333" marker-end="url(#arrowhead)"/>
-  <text x="1228" y="478" font-size="13">deploys</text>
-  <rect x="1170" y="490" width="100" height="40" rx="3" fill="#fff" stroke="#333"/>
-  <text x="1220" y="515" text-anchor="middle" font-size="13">CI service</text>
-  <rect x="1020" y="490" width="120" height="40" rx="3" fill="#ccc" stroke="#333"/>
-  <text x="1080" y="515" text-anchor="middle" font-size="13">Origin code</text>
-  <line x1="1140" y1="510" x2="1168" y2="510" stroke="#333" marker-end="url(#arrowhead)"/>
-  <rect x="1300" y="490" width="120" height="40" rx="3" fill="#fff" stroke="#333"/>
-  <text x="1360" y="515" text-anchor="middle" font-size="13">PII code</text>
-  <line x1="1300" y1="510" x2="1272" y2="510" stroke="#333" marker-end="url(#arrowhead)"/>
-  <rect x="1160" y="560" width="120" height="40" rx="3" fill="#ccc" stroke="#333"/>
-  <text x="1220" y="585" text-anchor="middle" font-size="13">Third-party code</text>
-  <line x1="1220" y1="560" x2="1220" y2="532" stroke="#333" marker-end="url(#arrowhead)"/>
+  <path d="M990,432 Q990,442 1000,442 H1280 Q1290,442 1290,452 Q1290,442 1300,442 H1580 Q1590,442 1590,432" fill="none" stroke="#333"/>
+  <line x1="1290" y1="490" x2="1290" y2="456" stroke="#333" marker-end="url(#arrowhead)"/>
+  <text x="1298" y="478" font-size="13">deploys</text>
+  <rect x="1240" y="490" width="100" height="40" rx="3" fill="#fff" stroke="#333"/>
+  <text x="1290" y="515" text-anchor="middle" font-size="13">CI service</text>
+  <rect x="1090" y="490" width="120" height="40" rx="3" fill="#ccc" stroke="#333"/>
+  <text x="1150" y="515" text-anchor="middle" font-size="13">Origin code</text>
+  <line x1="1210" y1="510" x2="1238" y2="510" stroke="#333" marker-end="url(#arrowhead)"/>
+  <rect x="1370" y="490" width="120" height="40" rx="3" fill="#fff" stroke="#333"/>
+  <text x="1430" y="515" text-anchor="middle" font-size="13">PII code</text>
+  <line x1="1370" y1="510" x2="1342" y2="510" stroke="#333" marker-end="url(#arrowhead)"/>
+
+  <!-- Third-party code, outside the origin -->
+  <rect x="1230" y="630" width="120" height="40" rx="3" fill="#ccc" stroke="#333"/>
+  <text x="1290" y="655" text-anchor="middle" font-size="13">Third-party code</text>
+  <line x1="1290" y1="630" x2="1290" y2="532" stroke="#333" marker-end="url(#arrowhead)"/>
 
   <!-- Requests and responses -->
-  <line x1="392" y1="160" x2="918" y2="160" stroke="#333" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
+  <line x1="392" y1="160" x2="988" y2="160" stroke="#333" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
   <text x="400" y="154" font-size="13">scripts, styles, images, etc.</text>
-  <line x1="392" y1="190" x2="918" y2="190" stroke="#333" marker-end="url(#arrowhead)"/>
+  <line x1="392" y1="190" x2="988" y2="190" stroke="#333" marker-end="url(#arrowhead)"/>
   <text x="400" y="184" font-size="13">GET /profile</text>
-  <line x1="918" y1="200" x2="392" y2="200" stroke="#333" marker-end="url(#arrowhead)"/>
+  <line x1="988" y1="200" x2="392" y2="200" stroke="#333" marker-end="url(#arrowhead)"/>
   <text x="400" y="218" font-size="13">200 OK &lt;html...</text>
-  <line x1="682" y1="295" x2="918" y2="295" stroke="#333" marker-end="url(#arrowhead)"/>
+  <line x1="682" y1="295" x2="988" y2="295" stroke="#333" marker-end="url(#arrowhead)"/>
   <text x="690" y="263" font-size="13">GET /pii/sw.js<tspan x="690" dy="13" font-size="11">Sec-Fetch-Dest: serviceworker</tspan><tspan x="690" dy="13" font-size="11">Service-Worker: script</tspan></text>
-  <line x1="918" y1="305" x2="682" y2="305" stroke="#333" marker-end="url(#arrowhead)"/>
+  <line x1="988" y1="305" x2="682" y2="305" stroke="#333" marker-end="url(#arrowhead)"/>
   <text x="690" y="320" font-size="13">200 OK<tspan x="690" dy="13" font-size="11">Cache-Control: no-store</tspan></text>
   <line x1="340" y1="262" x2="598" y2="262" stroke="#333" marker-end="url(#arrowhead)"/>
   <text x="400" y="256" font-size="13">GET /pii/abc123</text>
