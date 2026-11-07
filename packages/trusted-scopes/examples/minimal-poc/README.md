@@ -7,4 +7,4 @@ Minimal proof of concept for [`trusted-scopes`](../../docs/design.md#a-minimal-p
 - `pnpm dev` serves it with Vite at http://localhost:5173/profile.
 - `pnpm test` runs the Playwright tests in Chromium, Firefox, and WebKit.
 
-**This PoC is not production ready.** It makes only the security guarantees described in the [design](../../docs/design.md#design). It doesn't authenticate requests for the service worker, so any client that sends the `Sec-Fetch-Dest: serviceworker` and `Service-Worker: script` headers can read the key.
+**This PoC is not production ready.** It makes only the security guarantees described in the [design](../../docs/design.md#design), weakened to reflect the fact that it is not hosted on a secure site and it does not authenticate requests.
