@@ -44,13 +44,35 @@ First, the page can fetch `/pii/sw.js` directly or from the browser's cache and 
 
 Second, if the page load is uncontrolled (because the service worker is not yet installed, e.g.) and the worker calls [`clients.claim()`](https://developer.mozilla.org/en-US/docs/Web/API/Clients/claim), the page can read the PII. The page can open `/pii/x` before the worker activates, which results in a 404 response from the server, creating a same-origin, unsandboxed document in the worker's scope. Once the worker claims that document, the page can call `fetch("/pii/abc123")` from it (by injecting a script tag, e.g.) and read the decrypted response. To prevent this, the worker must only respond to requests whose [`destination`](https://developer.mozilla.org/en-US/docs/Web/API/Request/destination) is `"iframe"`, which scripts can't set, and return an error otherwise.
 
-Third, the page can register a service worker that steals the key with a [built-in pollution](background.md#built-in-pollution) attack. The untrusted web server serves the worker from a path outside `/pii/`, and the worker patches a built-in that the trusted code passes the key to, such as `Uint8Array.fromBase64`, then imports `/pii/sw.js` as a module. In Chromium and WebKit, that import also sends `Sec-Fetch-Dest: serviceworker`. To prevent this, the server must also require the [`Service-Worker: script`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Service-Worker) header, which browsers send only when fetching a worker's main script. Scripts can set this header, so the server must require both.
+Third, the page can register a service worker that reads the key with a [built-in pollution](background.md#built-in-pollution) attack. The untrusted web server hosts a worker that patches a built-in to which the trusted code passes the key (`Uint8Array.fromBase64`, e.g.) to leak the key, and then imports `/pii/sw.js` as a module. In Chromium and WebKit, the request made for that import includes the `Sec-Fetch-Dest: serviceworker` header. To prevent this attack, the server must also require the [`Service-Worker: script`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Service-Worker) header, which browsers send only when fetching a worker's main script. Scripts _can_ set this header, so the `Sec-Fetch-Dest` check is still necessary.
 
 ![The same profile page, with the name and address each in an iframe whose src is /pii/ followed by the field's ciphertext, such as /pii/abc123. At https://example.com:443, a layer 7 router routes /pii/* to a PII server and other paths, including /profile, to the web server. The web server fetches the encrypted PII from the PII server and puts it in each iframe's src. A service worker in the browser fetches its code, /pii/sw.js, from the PII server with Sec-Fetch-Dest: serviceworker and Service-Worker: script, which responds with Cache-Control: no-store. The worker then answers each iframe's request without the network, responding with the decrypted PII and Content-Security-Policy: sandbox. The browser, the iframes, the service worker, the router, and the PII server are trusted. The rest of the page and the web server are untrusted.](service-worker.svg)
 
+## Design
+
+An _origin_ hosting an _untrusted page_ that registers a _service worker_ at a given _scope_ can communicate a secret from the _web server_ hosting the worker to _sandbox iframes_ served client-side by the worker and embedded in the untrusted page if the following are true:
+
+The origin
+- is secure
+- responds to unauthenticated requests for the service worker with an error
+- responds to requests for the service worker from within the origin with an error
+- forwards all other requests for resources in the scope to the web server
+
+The web server
+- returns an error if a request for the service worker does not have the following headers
+    - `Sec-Fetch-Dest: serviceworker`
+    - `Service-Worker: script`
+- includes the `Cache-Control: no-store` header when responding with the service worker
+
+The service worker
+- returns an error if a request for an iframe if the request's `destination` is not `iframe`
+- includes a CSP sandbox directive that does not include the `allow-same-origin` permission when responding with the iframe document
+
+Given these conditions, an attacker cannot compromise the secret's confidentiality or integrity.
+
 ## A Minimal Proof-of-Concept
 
-This architecture avoids making a network request for each PII frame without significantly changing the size of the TCB. For clarity, however, it assumes the service worker is already in place when the page is loaded and omits the details of how this is accomplished. See [`examples/minimal-poc`](../examples/minimal-poc) for a full proof-of-concept that handles the details of installing the service worker. This PoC is intended only as a demonstration. *It is not production ready and has a number of vulnerabilities.*
+This architecture avoids making a network request for each PII frame without significantly changing the size of the TCB. For clarity, however, it assumes the service worker is already in place when the page is loaded and omits the details of how this is accomplished. See [`examples/minimal-poc`](../examples/minimal-poc) for a full proof-of-concept that handles the details of installing the service worker. This PoC is intended only as a demonstration of the trusted scope primitive. *It is not production ready.*
 
 ### Vulnerabilities
 
