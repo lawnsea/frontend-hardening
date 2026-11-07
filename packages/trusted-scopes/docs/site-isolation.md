@@ -1,18 +1,18 @@
 # Site Isolation
 
-[Site isolation](https://www.chromium.org/Home/chromium-security/site-isolation/) is a browser security feature that mitigates [Spectre](https://spectreattack.com/) and other side-channel attacks, as well as attacks from a compromised renderer by running documents from different [sites](https://html.spec.whatwg.org/multipage/browsers.html#sites) in different processes.
+[Site isolation](https://www.chromium.org/Home/chromium-security/site-isolation/) is a browser security feature that mitigates [Spectre](https://spectreattack.com/) and other side-channel attacks, as well as attacks from a compromised renderer, by running documents from different [sites](https://html.spec.whatwg.org/multipage/browsers.html#sites) in different processes.
 
-Chromium and Firefox enable site isolation by default. WebKit support is in-progress and disabled by default, but can be enabled by the user. Browser implementations of site isolation differ.
+Chromium and Firefox enable site isolation by default. WebKit support is in progress and disabled by default, but can be enabled by the user in Safari's Technology Preview. Browser implementations of site isolation differ.
 
 ## Browser Support
 
 ### Chromium
 
-The service worker runs in the page's process, so the page can read any secrets it contains with a side-channel attack. Sandboxed frames in the page run in a process separate from the page's. However, that process is shared with every sandboxed frame from the page's site, so an attacker-controlled sandbox frame can read secrets from other sandboxed frames from the page's site, including the frame returned by the service worker.
+The service worker runs in the page's process, so the page can read any secrets it contains with a side-channel attack. Sandboxed frames in the page run in a process separate from the page's. However, that process is shared with every sandboxed frame from the page's site, so an attacker-controlled sandboxed frame can read secrets from other sandboxed frames from the page's site, including the frame returned by the service worker.
 
 #### Opaque Blob Origins
 
-A Blob URL created by a sandboxed frame with an [opaque origin](background.md#opaque-origin), so  has the form `blob:null/<uuid>`. Chromium runs documents created from such a URL in their own process (shared only with documents with the same UUID).
+A Blob URL created by a sandboxed frame, which has an [opaque origin](background.md#opaque-origin), has the form `blob:null/<uuid>`. Chromium runs documents created from such a URL in their own process (shared only with documents with the same UUID).
 
 ### Firefox
 
