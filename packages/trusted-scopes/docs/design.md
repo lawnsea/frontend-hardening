@@ -80,4 +80,4 @@ Given these conditions, an attacker cannot compromise the secret's integrity or 
 
 ### Site Isolation
 
-The page can mount a Spectre attack on the service worker to read the secret, since the worker is from the same site as the page and thus not isolated from it. See [site-isolation.md](site-isolation.md) for how each browser isolates the worker and the frames.
+The page can mount a Spectre attack on the service worker to read the secret in all browsers. See [site-isolation.md](site-isolation.md) details.
