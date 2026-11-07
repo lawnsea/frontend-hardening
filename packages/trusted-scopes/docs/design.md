@@ -48,6 +48,10 @@ Third, the page can register a service worker that reads the key with a [built-i
 
 ![The same profile page, with the name and address each in an iframe whose src is /pii/ followed by the field's ciphertext, such as /pii/abc123. At https://example.com:443, a layer 7 router routes /pii/* to a PII server and other paths, including /profile, to the web server. The web server fetches the encrypted PII from the PII server and puts it in each iframe's src. A service worker in the browser fetches its code, /pii/sw.js, from the PII server with Sec-Fetch-Dest: serviceworker and Service-Worker: script, which responds with Cache-Control: no-store. The worker then answers each iframe's request without the network, responding with the decrypted PII and Content-Security-Policy: sandbox. The browser, the iframes, the service worker, the router, and the PII server are trusted. The rest of the page and the web server are untrusted.](service-worker.svg)
 
+## A Minimal Proof-of-Concept
+
+This architecture avoids making a network request for each PII frame without significantly changing the size of the TCB. For clarity, however, it assumes the service worker is already in place when the page is loaded and omits the details of how this is accomplished. See [`examples/minimal-poc`](../examples/minimal-poc) for a full proof-of-concept that handles the details of installing the service worker. This PoC is intended only as a demonstration of the trusted scope primitive. *It is not production ready.*
+
 ## Design
 
 An _origin_ hosting an _untrusted page_ that registers a _service worker_ at a given _scope_ can communicate a secret from the _web server_ hosting the worker to _sandboxed iframes_ served client-side by the worker and embedded in the untrusted page if the following are true:
@@ -73,7 +77,3 @@ Given these conditions, an attacker cannot compromise the secret's integrity or 
 ### Site Isolation
 
 The page can mount a Spectre attack on the service worker to read the secret, since the worker is from the same site as the page and thus not isolated from it.
-
-## A Minimal Proof-of-Concept
-
-This architecture avoids making a network request for each PII frame without significantly changing the size of the TCB. For clarity, however, it assumes the service worker is already in place when the page is loaded and omits the details of how this is accomplished. See [`examples/minimal-poc`](../examples/minimal-poc) for a full proof-of-concept that handles the details of installing the service worker. This PoC is intended only as a demonstration of the trusted scope primitive. *It is not production ready.*
