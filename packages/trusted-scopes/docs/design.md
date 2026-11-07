@@ -68,7 +68,7 @@ The service worker
 - returns an error for a request for an iframe if the request's `destination` is not `iframe`
 - includes a CSP sandbox directive that does not include the `allow-same-origin` permission when responding with the iframe document
 
-Given these conditions, an attacker cannot compromise the secret's integrity or its confidentiality except via side channel attacks like Spectre.
+Given these conditions, an attacker cannot compromise the secret's integrity or its confidentiality except via side-channel attacks like Spectre.
 
 ### Site Isolation
 
