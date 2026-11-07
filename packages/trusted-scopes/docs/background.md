@@ -1,18 +1,18 @@
 # Background
 
-- [Built-in Poisoning](#built-in-poisoning)
+- [Built-in Pollution](#built-in-pollution)
 - [Content Security Policy](#content-security-policy)
 - [CSP Sandbox Directive](#csp-sandbox-directive)
 - [Opaque Origin](#opaque-origin)
 - [Origin](#origin)
-- [Prototype Poisoning](#prototype-poisoning)
+- [Prototype Pollution](#prototype-pollution)
 - [Same-Origin Policy](#same-origin-policy)
 - [Scope](#scope)
 - [Service Worker](#service-worker)
 
-# Built-in Poisoning
+# Built-in Pollution
 
-Similar to [prototype poisoning](#prototype-poisoning), but the attacker compromises properties of the [global object](https://developer.mozilla.org/en-US/docs/Glossary/Global_object) directly.
+Similar to [prototype pollution](#prototype-pollution), but the attacker compromises properties of the [global object](https://developer.mozilla.org/en-US/docs/Glossary/Global_object) directly.
 
 # Content Security Policy
 
@@ -30,9 +30,9 @@ An [opaque origin](https://html.spec.whatwg.org/multipage/browsers.html#concept-
 
 An [origin](https://developer.mozilla.org/en-US/docs/Glossary/Origin) is a URL's scheme, host, and port.
 
-# Prototype Poisoning
+# Prototype Pollution
 
-[Prototype poisoning](https://developer.mozilla.org/en-US/docs/Web/Security/Attacks/Prototype_pollution), also called prototype pollution, is an attack that changes properties of a built-in prototype, such as `Object.prototype`, to alter the behavior of code that inherits from it.
+[Prototype pollution](https://developer.mozilla.org/en-US/docs/Web/Security/Attacks/Prototype_pollution) is an attack that changes properties of a built-in prototype, such as `Object.prototype`, to alter the behavior of code that inherits from it.
 
 # Same-Origin Policy
 

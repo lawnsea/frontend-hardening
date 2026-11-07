@@ -153,7 +153,7 @@ test("a claimed document can't fetch the plaintext", async ({ page, context, bro
   expect(body).not.toContain(PROFILE.name);
 });
 
-test("a poisoning worker can't steal the key", async ({ page }) => {
+test("a polluting worker can't steal the key", async ({ page }) => {
   await load(page);
   // Firefox never settles this registration, so give up after a while.
   const stolen = await page.evaluate(
@@ -161,7 +161,7 @@ test("a poisoning worker can't steal the key", async ({ page }) => {
       new Promise((resolve) => {
         setTimeout(() => resolve(null), 2000);
         navigator.serviceWorker.addEventListener("message", (event) => resolve(event.data));
-        navigator.serviceWorker.register("/poison-sw.js", { scope: "/poison/", type: "module" }).catch(() => resolve(null));
+        navigator.serviceWorker.register("/pollute-sw.js", { scope: "/pollute/", type: "module" }).catch(() => resolve(null));
       }),
   );
   expect(stolen).toBeNull();

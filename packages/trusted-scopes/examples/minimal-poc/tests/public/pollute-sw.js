@@ -1,6 +1,6 @@
 // An attacker's worker. Imports run in order, so the trusted worker's code runs
-// with the poisoned built-ins.
-import "./poison.js";
+// with the polluted built-ins.
+import "./pollute.js";
 import "/pii/sw.js";
 
 addEventListener("activate", async () => {
