@@ -50,7 +50,7 @@ Third, the page can register a service worker that reads the key with a [built-i
 
 ## Design
 
-An _origin_ hosting an _untrusted page_ that registers a _service worker_ at a given _scope_ can communicate a secret from the _web server_ hosting the worker to _sandbox iframes_ served client-side by the worker and embedded in the untrusted page if the following are true:
+An _origin_ hosting an _untrusted page_ that registers a _service worker_ at a given _scope_ can communicate a secret from the _web server_ hosting the worker to _sandboxed iframes_ served client-side by the worker and embedded in the untrusted page if the following are true:
 
 The origin
 - is secure
@@ -65,7 +65,7 @@ The web server
 - includes the `Cache-Control: no-store` header when responding with the service worker
 
 The service worker
-- returns an error if a request for an iframe if the request's `destination` is not `iframe`
+- returns an error for a request for an iframe if the request's `destination` is not `iframe`
 - includes a CSP sandbox directive that does not include the `allow-same-origin` permission when responding with the iframe document
 
 Given these conditions, an attacker cannot compromise the secret's confidentiality or integrity.
