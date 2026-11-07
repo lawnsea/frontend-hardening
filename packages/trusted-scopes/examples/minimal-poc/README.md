@@ -7,4 +7,4 @@ Minimal proof of concept for [`trusted-scopes`](../../docs/design.md#a-minimal-p
 - `pnpm dev` serves it with Vite at http://localhost:5173/profile.
 - `pnpm test` runs the Playwright tests in Chromium, Firefox, and WebKit.
 
-**This PoC is not production ready and has known vulnerabilities.** See the [design doc](../../docs/design.md#a-minimal-proof-of-concept) for details.
+**This PoC is not production ready.** It makes only the security guarantees described in the [design](../../docs/design.md#design).
