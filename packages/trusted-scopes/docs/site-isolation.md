@@ -8,11 +8,11 @@ Chromium and Firefox enable site isolation by default. WebKit support is in prog
 
 ### Chromium
 
-The service worker runs in the page's process, so the page can read any secrets it contains with a side-channel attack. Sandboxed frames in the page run in a process separate from the page's. However, that process is shared with every sandboxed frame from the page's site, so an attacker-controlled sandboxed frame can read secrets from other sandboxed frames from the page's site, including the frame returned by the service worker.
+The service worker runs in the page's process, so the page and any other script in its process (other service workers, e.g.) can read any secrets the worker contains with a side-channel attack. Sandboxed frames in the page run in a process separate from the page's. However, that process is shared with every sandboxed frame from the page's site, so an attacker-controlled sandboxed frame (`<iframe sandbox="allow-scripts" srcdoc="<attack>"></iframe>`, e.g.) can read secrets from any other sandboxed frames from the page's site, including the frame returned by the service worker.
 
 #### Opaque Blob Origins
 
-A Blob URL created by a sandboxed frame, which has an [opaque origin](background.md#opaque-origin), has the form `blob:null/<uuid>`. Chromium runs documents created from such a URL in their own process (shared only with documents with the same UUID).
+Chromium runs documents created from null-origin Blob URLs of the form `blob:null/<uuid>` (like one created by a sandboxed frame, i.e.) in a process shared only with other documents created from other null-origin blob URLs with the same UUID. The service worker can ensure a sandboxed frame is site isolated by embedding its content in a blob URL with a unique UUID. Unfortunately, this is not useful: the attacker cannot read a secret from the blob iframe, but it can still be read from the outer sandboxed frame (and the service worker).
 
 ### Firefox
 
