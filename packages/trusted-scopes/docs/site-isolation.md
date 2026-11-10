@@ -12,7 +12,7 @@ The service worker runs in the page's process, so the page and any other script 
 
 #### Opaque Blob Origins
 
-Chromium runs documents created from null-origin Blob URLs of the form `blob:null/<uuid>` (like one created by a sandboxed frame, i.e.) in a process shared only with other documents created from other null-origin blob URLs with the same UUID. The service worker can ensure a sandboxed frame is site isolated by embedding its content in a blob URL with a unique UUID. Unfortunately, this is not useful: the attacker cannot read a secret from the blob iframe, but it can still be read from the outer sandboxed frame (and the service worker).
+Chromium runs documents created from null-origin Blob URLs of the form `blob:null/<uuid>` (i.e., one created by a sandboxed frame) in a process shared only with other documents created from other null-origin blob URLs with the same UUID. The service worker can ensure a sandboxed frame is site isolated by embedding its content in a blob URL with a unique UUID. Unfortunately, this is not useful: the attacker cannot read a secret from the blob iframe, but it can still be read from the outer sandboxed frame (and the service worker).
 
 ### Firefox
 
