@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "node server.ts",
+    "start": "node router.ts",
     "typecheck": "tsc --noEmit",
     "test": "playwright test"
   },
