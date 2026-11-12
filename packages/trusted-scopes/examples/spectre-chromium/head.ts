@@ -42,7 +42,7 @@ export function headScript(secret: string): string {
   });
 
   // The page's CSP allows only this policy, and only once.
-  const policy = trustedTypes.createPolicy("block-srcdoc", {
+  trustedTypes.createPolicy("default", {
     // Block srcdoc to prevent untrusted code from replacing the outer frame document with inline HTML
     createHTML: (html, type, sink) => (/srcdoc/i.test(sink) ? null : html),
     createScript: (script) => script,
@@ -54,7 +54,7 @@ export function headScript(secret: string): string {
     const xhr = new XMLHttpRequest();
     xhr.open("DELETE", "/redeem", false);
     xhr.send("${secret}");
-    container.register(policy.createScriptURL("/sw.js"))
+    container.register("/sw.js")
       .then(() => apply(readyGetter, container, []))
       .then(() => location.reload());
     return;

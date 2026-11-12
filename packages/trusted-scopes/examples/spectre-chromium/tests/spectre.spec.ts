@@ -98,7 +98,7 @@ const loadOwnDocument = (route: string) => `<script>
     frame.contentWindow.location = "about:blank";
     setTimeout(() => attempt(() => {
       // The page's CSP lets each realm create one policy with this name.
-      const policy = frame.contentWindow.trustedTypes.createPolicy("block-srcdoc", { createScript: (s) => s });
+      const policy = frame.contentWindow.trustedTypes.createPolicy("default", { createScript: (s) => s });
       const body = frame.contentDocument.body;
       body.setAttribute("onclick", policy.createScript(poser));
       body.click();

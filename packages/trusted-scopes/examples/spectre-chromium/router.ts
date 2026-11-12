@@ -82,7 +82,7 @@ export async function startExample(port: number, opts: Options = {}): Promise<Ex
           ...page.headers,
           "Cache-Control": "no-store",
           "Cross-Origin-Opener-Policy": "same-origin",
-          "Content-Security-Policy": `frame-src http://localhost:${port}/__frame/; require-trusted-types-for 'script'; trusted-types block-srcdoc`,
+          "Content-Security-Policy": `frame-src http://localhost:${port}/__frame/; require-trusted-types-for 'script'; trusted-types default`,
         })
         .end(
           // The head script and the gate come first, so they run before any of the

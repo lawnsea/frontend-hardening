@@ -18,9 +18,9 @@ The router serves `/profile` only for `Sec-Fetch-Dest: document`. It puts these 
 - the trusted head script (`head.ts`), holding a secret from the PII server;
 - a **gate:** a parser-blocking `<script src="/__gate">`, so no untrusted code runs until it loads.
 
-It sends `Content-Security-Policy: frame-src <origin>/__frame/; require-trusted-types-for 'script'; trusted-types block-srcdoc`. It serves `sw.js` only for `Sec-Fetch-Dest: serviceworker`, and no other path for that destination.
+It sends `Content-Security-Policy: frame-src <origin>/__frame/; require-trusted-types-for 'script'; trusted-types default`. It serves `sw.js` only for `Sec-Fetch-Dest: serviceworker`, and no other path for that destination.
 
-The head script saves every built-in it uses after untrusted code runs, and creates the `block-srcdoc` Trusted Types policy. Untrusted code can't create a policy, so it can't assign a string to `srcdoc`.
+The head script saves every built-in it uses after untrusted code runs, and creates the `default` Trusted Types policy, which refuses `srcdoc`. Untrusted code can't create another policy.
 
 ### Load without the worker
 
