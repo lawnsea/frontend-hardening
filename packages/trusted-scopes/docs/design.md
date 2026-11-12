@@ -81,3 +81,5 @@ Given these conditions, an attacker cannot compromise the secret's integrity or 
 ### Site Isolation
 
 The page can mount a Spectre attack on the service worker to read the secret in all browsers. See [site-isolation.md](site-isolation.md) for details.
+
+In Chromium, the [spectre-chromium](../examples/spectre-chromium) example keeps the PII out of the page's reach in `blob:null` frames, which run in their own processes.
