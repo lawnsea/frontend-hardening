@@ -1,5 +1,5 @@
 // The untrusted profile server. It renders the profile page, which shows the user's
-// name in a PII frame.
+// name in a frame of the trusted "pii" scope.
 import { options, serve } from "./ipc.ts";
 
 export interface ProfileOptions {
@@ -26,7 +26,7 @@ const page = `<!doctype html>
       <dd id="name"></dd>
     </dl>
     <script>
-      if (window.trustedScopes) document.getElementById("name").append(trustedScopes.mintPiiFrame());
+      window.trustedScopes?.createScope("pii").then((pii) => document.getElementById("name").append(pii.createFrame("/name")));
     </script>
     ${body}
   </body>

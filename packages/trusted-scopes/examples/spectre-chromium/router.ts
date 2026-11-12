@@ -1,41 +1,48 @@
-// The L7 router. It runs the PII server and the profile server as subprocesses,
-// routes the browser's requests to them, and injects the trusted head script into
-// the profile page. `node router.ts` serves the example at
-// http://localhost:5176/profile.
+// The trusted L7 router. It runs the trusted scope servers and the untrusted
+// profile server as subprocesses, issues and redeems single-use keys, verifies
+// signed scope requests, and injects the trusted head script into the profile
+// page. `node router.ts` serves the example at http://localhost:5176/profile.
 import { fork, type ChildProcess } from "node:child_process";
-import { createServer, type IncomingMessage } from "node:http";
+import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { fileURLToPath } from "node:url";
 import { headScript } from "./head.ts";
 import type { Request, Response } from "./ipc.ts";
-import type { PiiOptions } from "./pii-server.ts";
 import type { ProfileOptions } from "./profile-server.ts";
+
+const CONTROLLER_SW = readFileSync(new URL("./controller-sw.js", import.meta.url), "utf8");
+
+// The trusted server for each scope.
+const SCOPE_SERVERS: Record<string, string> = { pii: "pii-server.ts" };
+// What the controller frame's MAC signs. It isn't a scope, so it can't sign scope requests.
+const CONTROLLER = "controller";
 
 export interface Example {
   url: string;
-  // Every browser request, as "request <path>", and every server event, in order.
+  // Every browser request, as "request <path>", and every event, in order.
   log: string[];
   close(): Promise<void>;
 }
 
 export interface Options {
-  pii?: PiiOptions;
+  // Never answers redemption, so the controller worker times out.
+  hangRedeem?: boolean;
+  // Refuses the controller worker script, so the page stays uncontrolled.
+  refuseWorker?: boolean;
   profile?: ProfileOptions;
 }
 
-// Picks the server for a request by its path.
-function route(pathname: string): "pii" | "profile" {
-  if (["/sw.js", "/redeem", "/invalidate", "/__gate"].includes(pathname) || pathname.startsWith("/__frame/")) {
-    return "pii";
-  }
-  return "profile";
-}
-
 export async function startExample(port: number, opts: Options = {}): Promise<Example> {
+  const origin = `http://localhost:${port}`;
+  const timeout = opts.hangRedeem ? 1500 : 3000;
   const log: string[] = [];
+  const keys = new Map<string, "issued" | "spent">();
+  const sessions = new Map<string, Buffer>();
   const pending = new Map<number, (response: Response) => void>();
   let nextId = 0;
 
-  const start = (file: string, options: object) => {
+  const start = (file: string, options: object = {}) => {
     const child = fork(fileURLToPath(new URL(file, import.meta.url)), [JSON.stringify(options)]);
     child.on("message", (message: { id?: number; response?: Response; log?: string }) => {
       if (message.log) log.push(message.log);
@@ -46,63 +53,175 @@ export async function startExample(port: number, opts: Options = {}): Promise<Ex
     });
     return child;
   };
-  const servers: Record<"pii" | "profile", ChildProcess> = {
-    pii: start("pii-server.ts", opts.pii ?? {}),
-    profile: start("profile-server.ts", opts.profile ?? {}),
-  };
-  const request = (name: "pii" | "profile", req: Request) =>
+  const profileServer = start("profile-server.ts", opts.profile);
+  const scopeServers = new Map(Object.entries(SCOPE_SERVERS).map(([scope, file]) => [scope, start(file)]));
+  const request = (child: ChildProcess, req: Request) =>
     new Promise<Response>((resolve) => {
       const id = nextId++;
       pending.set(id, resolve);
-      servers[name].send({ id, request: req });
+      child.send({ id, request: req });
     });
   const readBody = (req: IncomingMessage) =>
     new Promise<string>((r) => {
       let b = "";
       req.on("data", (c) => (b += c)).on("end", () => r(b));
     });
+  const send = (res: ServerResponse, { status, headers, body }: Response) => res.writeHead(status, headers).end(body);
+  const empty = (status: number, headers: Record<string, string> = {}): Response => ({ status, headers, body: "" });
 
-  const server = createServer(async (req, res) => {
+  // The MAC for scope in a session: <session ID>.<scope>.<HMAC of the scope with the
+  // session's key>.
+  const macFor = (sessionId: string, scope: string) =>
+    `${sessionId}.${scope}.${createHmac("sha256", sessions.get(sessionId)!).update(scope).digest("base64url")}`;
+
+  // Whether a Trusted-Scope-Signature header is a MAC for scope.
+  const signedFor = (header: string | string[] | undefined, scope: string) => {
+    if (typeof header !== "string") return false;
+    const [sessionId, signedScope, mac] = header.split(".");
+    const key = sessions.get(sessionId);
+    if (!key || signedScope !== scope || !mac) return false;
+    const expected = createHmac("sha256", key).update(scope).digest();
+    const actual = Buffer.from(mac, "base64url");
+    return actual.length === expected.length && timingSafeEqual(actual, expected);
+  };
+
+  const handle = async (req: IncomingMessage): Promise<Response> => {
     const url = req.url!;
-    const { pathname } = new URL(url, "http://localhost");
+    const { pathname, searchParams } = new URL(url, origin);
     const dest = req.headers["sec-fetch-dest"];
-    log.push(`request ${url}`);
-    // Only the trusted worker script can be registered.
-    if ((dest === "serviceworker") !== (pathname === "/sw.js")) return res.writeHead(403).end();
+    const scopeMatch = pathname.match(/^\/trusted-scopes\/([a-z0-9-]+)(\/.*)$/);
+    const scopeWorker = scopeMatch?.[2] === "/sw.js";
+    // Only the trusted workers can be registered.
+    if ((dest === "serviceworker") !== (pathname === "/sw.js" || scopeWorker)) return empty(403);
     const forwarded: Request = { method: req.method!, url, headers: req.headers, body: await readBody(req) };
 
+    if (pathname === "/sw.js") {
+      if (opts.refuseWorker) return empty(404);
+      return { status: 200, headers: { "Content-Type": "text/javascript", "Cache-Control": "no-cache" }, body: CONTROLLER_SW };
+    }
+
     if (pathname === "/profile") {
-      if (dest !== "document") return res.writeHead(403).end();
-      const issued = await request("pii", { method: "POST", url: "/secrets", headers: {}, body: "", from: "router" });
-      const { secret, timeout } = JSON.parse(issued.body);
-      const page = await request("profile", forwarded);
+      if (dest !== "document") return empty(403);
+      const psk = randomBytes(32).toString("base64url");
+      keys.set(psk, "issued");
+      const page = await request(profileServer, forwarded);
       log.push("profile-served");
-      return res
-        .writeHead(page.status, {
+      return {
+        status: page.status,
+        headers: {
           ...page.headers,
           "Cache-Control": "no-store",
           "Cross-Origin-Opener-Policy": "same-origin",
-          "Content-Security-Policy": `frame-src http://localhost:${port}/__frame/; require-trusted-types-for 'script'; trusted-types default`,
-        })
-        .end(
-          // The head script and the gate come first, so they run before any of the
-          // profile page's markup is parsed.
-          `<!doctype html><html><head><meta charset="utf-8"><script>${headScript(secret)}</script>` +
-            `<script src="/__gate?secret=${secret}&timeout=${timeout}"></script>` +
-            page.body,
-        );
+          "Content-Security-Policy": `frame-src ${origin}/controller-frame ${origin}/trusted-scopes/; require-trusted-types-for 'script'; trusted-types default`,
+        },
+        // The head script and the parser-blocking script come first, so they run
+        // before any of the profile page's markup is parsed.
+        body:
+          `<!doctype html><html><head><meta charset="utf-8"><script>${headScript(psk)}</script>` +
+          `<script src="/controller-frame-ready?psk=${psk}&timeout=${timeout}"></script>` +
+          page.body,
+      };
     }
-    const { status, headers, body } = await request(route(pathname), forwarded);
-    res.writeHead(status, headers).end(body);
+
+    const psk = pathname.match(/^\/psk\/([\w-]+)$/)?.[1];
+    if (psk && req.method === "GET") {
+      const cors = { "Access-Control-Allow-Origin": "null" };
+      const state = keys.get(psk);
+      if (state !== "issued") {
+        log.push(`psk-refused-${state ?? "unknown"}-origin-${req.headers.origin}`);
+        return empty(410, cors);
+      }
+      if (opts.hangRedeem) {
+        log.push("psk-hanging");
+        return new Promise(() => {});
+      }
+      keys.set(psk, "spent");
+      const sessionId = randomBytes(16).toString("base64url");
+      sessions.set(sessionId, randomBytes(32));
+      log.push(`psk-redeemed-origin-${req.headers.origin}`);
+      // The controller frame's MAC, which /scope-mac accepts.
+      return { status: 200, headers: { ...cors, "Content-Type": "text/plain", "Cache-Control": "no-store" }, body: macFor(sessionId, CONTROLLER) };
+    }
+    if (psk && req.method === "DELETE") {
+      keys.set(psk, "spent");
+      log.push("psk-revoked");
+      return empty(204);
+    }
+
+    if (pathname === "/controller-frame-ready") {
+      // Only a page the controller worker doesn't control reaches here. Holds the
+      // script until the key is spent, or revokes it on timeout.
+      const key = searchParams.get("psk")!;
+      const start = Date.now();
+      while (keys.get(key) === "issued" && Date.now() - start < timeout) {
+        await new Promise((r) => setTimeout(r, 20));
+      }
+      if (keys.get(key) === "issued") {
+        keys.set(key, "spent");
+        log.push("gate-network-revoked");
+      }
+      log.push("gate-network");
+      return { status: 200, headers: { "Content-Type": "text/javascript", "Cache-Control": "no-store" }, body: "" };
+    }
+
+    const macScope = pathname.match(/^\/scope-mac\/([a-z0-9-]+)$/)?.[1];
+    if (macScope) {
+      const cors = {
+        "Access-Control-Allow-Origin": "null",
+        "Access-Control-Allow-Headers": "Trusted-Scope-Signature",
+        "Access-Control-Allow-Methods": "GET",
+      };
+      if (req.method === "OPTIONS") return empty(204, cors);
+      const header = req.headers["trusted-scope-signature"];
+      if (!signedFor(header, CONTROLLER)) {
+        log.push(`scope-mac-refused-${macScope}`);
+        return empty(403, cors);
+      }
+      if (!scopeServers.has(macScope)) {
+        log.push(`scope-mac-unknown-${macScope}`);
+        return empty(404, cors);
+      }
+      log.push(`scope-mac-issued-${macScope}`);
+      const sessionId = (header as string).split(".")[0];
+      return { status: 200, headers: { ...cors, "Content-Type": "text/plain", "Cache-Control": "no-store" }, body: macFor(sessionId, macScope) };
+    }
+
+    if (scopeMatch) {
+      const [, scope] = scopeMatch;
+      const server = scopeServers.get(scope);
+      if (!server) return empty(404);
+      if (scopeWorker) return request(server, forwarded);
+      // Scope frames have opaque origins, so their signed requests are preflighted.
+      const cors = {
+        "Access-Control-Allow-Origin": "null",
+        "Access-Control-Allow-Headers": "Trusted-Scope-Signature",
+        "Access-Control-Allow-Methods": "GET",
+      };
+      if (req.method === "OPTIONS") return empty(204, cors);
+      if (!signedFor(req.headers["trusted-scope-signature"], scope)) {
+        log.push(`scope-refused-${pathname}`);
+        return empty(403);
+      }
+      log.push(`scope-forwarded-${pathname}`);
+      const response = await request(server, forwarded);
+      return { ...response, headers: { ...response.headers, ...cors } };
+    }
+
+    return request(profileServer, forwarded);
+  };
+
+  const server = createServer(async (req, res) => {
+    log.push(`request ${req.url}`);
+    send(res, await handle(req));
   });
   await new Promise<void>((r) => server.listen(port, "localhost", r));
 
   return {
-    url: `http://localhost:${port}`,
+    url: origin,
     log,
     close: () =>
       new Promise((r) => {
-        Object.values(servers).forEach((child) => child.kill());
+        [profileServer, ...scopeServers.values()].forEach((child) => child.kill());
         server.close(() => r());
         server.closeAllConnections();
       }),
