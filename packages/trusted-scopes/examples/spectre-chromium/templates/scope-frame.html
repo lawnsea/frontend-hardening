@@ -4,9 +4,11 @@
   const toController = new MessageChannel();
   const toWorker = new MessageChannel();
   const toHead = new MessageChannel();
-  parent.parent.postMessage({ path: {{root}} }, "*", [toController.port2, toWorker.port2, toHead.port2]);
+  parent.postMessage({ path: {{root}} }, "*", [toController.port2, toWorker.port2, toHead.port2]);
 
+  // Without its own process, the page could read the MAC with Spectre, so don't accept it.
   const signature = new Promise((resolve, reject) => {
+    if (!crossOriginIsolated) return reject("not isolated");
     toController.port1.onmessage = ({ data }) => (data.mac ? resolve(data.mac) : reject(data.error));
   });
   signature.then(() => toHead.port1.postMessage("ready"), () => toHead.port1.postMessage("failed"));

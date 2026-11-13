@@ -1,6 +1,6 @@
 # spectre-chromium
 
-Protects the profile page's PII from [Spectre](https://spectreattack.com/) attacks by the page in Chromium. Trusted code and data stay in `blob:null` frames, which Chromium runs in their own processes ([site isolation](../../docs/site-isolation.md#opaque-blob-origins)).
+Protects the profile page's PII from [Spectre](https://spectreattack.com/) attacks by the page in Chromium. Trusted code and data stay in **trusted frames**: documents the trusted workers serve with `Content-Security-Policy: sandbox allow-scripts; frame-src 'none'` and [`Document-Isolation-Policy: isolate-and-credentialless`](https://github.com/WICG/document-isolation-policy). The sandbox gives each an opaque origin, and the isolation policy gives each its own process. Each checks `crossOriginIsolated`, which is true only when it has its own process, and does nothing without it.
 
 - `pnpm start` serves it at http://localhost:5176/profile.
 - `pnpm test` runs the Playwright tests in headed Chromium.
@@ -36,8 +36,8 @@ It creates the `default` Trusted Types policy, which refuses `srcdoc`, and saves
 - **Load not controlled by any worker:** it revokes the key with a synchronous `DELETE`, registers the controller worker, and reloads once it's active.
 - **Load controlled by another worker:** it revokes the key and stops.
 - **Load controlled by the controller worker:**
-  1. It adds the controller frame, `/controller-frame`. The controller worker serves it with `Content-Security-Policy: sandbox allow-scripts; frame-src blob:`, and it loads a `blob:null` document.
-  2. That document posts a control port and a worker port to the page, then redeems the key.
+  1. It adds the controller frame, `/controller-frame`, which the controller worker serves.
+  2. The controller frame posts a control port and a worker port to the page, then redeems the key.
   3. The head script keeps the control port and forwards the worker port to the controller worker.
   4. The controller frame sends `ready` to the controller worker, which then answers `/controller-frame-ready`. On timeout, it revokes the key first.
 
@@ -52,6 +52,6 @@ It creates the `default` Trusted Types policy, which refuses `srcdoc`, and saves
 - `scopes[scope]` is the trusted scope object for a created scope.
 - `trustedScope.createFrame(path)` adds a frame for `/trusted-scopes/<scope><path>`, served by the scope worker. The frame posts one port to the scope frame and one to the scope worker. The scope frame sends the frame its content:
   - by default, the scope server's response to a signed request for the path;
-  - in the `pii` scope, the path decrypted. The profile page calls `createFrame("/" + ciphertext)`, and the pii scope frame decrypts it with the session key from `/trusted-scopes/pii/session-key` and [`@noble/ciphers`](https://github.com/paulmillr/noble-ciphers). `blob:null` documents aren't secure contexts, so they have no WebCrypto.
+  - in the `pii` scope, the path decrypted. The profile page calls `createFrame("/" + ciphertext)`, and the pii scope frame decrypts it with the session key from `/trusted-scopes/pii/session-key` and [`@noble/ciphers`](https://github.com/paulmillr/noble-ciphers).
 
-The head script connects a trusted frame's ports only from a trusted message with origin `"null"` from the frame's first child, carrying the frame's path. If the path is wrong, it throws. Untrusted code can't run script there with origin `"null"`. `frame-src` blocks other URLs, the `default` policy blocks `srcdoc`, and a document it can script, such as `about:blank`, has the page's origin.
+The head script connects a trusted frame's ports only from a trusted message with origin `"null"` from the frame's window, carrying the frame's path. If the path is wrong, it throws. Untrusted code can't run script there with origin `"null"`. `frame-src` blocks other URLs, the `default` policy blocks `srcdoc`, and a document it can script, such as `about:blank`, has the page's origin.

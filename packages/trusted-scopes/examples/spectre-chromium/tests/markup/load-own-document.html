@@ -1,15 +1,13 @@
 <script>
   // Creates a frame in the pii scope and tries to load its own document in it, by
-  // route. Its document adds a child frame that posts as the frame's blob:null
-  // document would. The page's CSP lets each document create a default policy once.
+  // route. Its document posts to this page as the frame's trusted document would.
   const route = {{route}};
-  // The child posts what it gets back to this page, which reports it.
+  // The document posts what it gets back to this page, which reports it.
   addEventListener("message", (e) => {
     if (e.data && "stolen" in e.data) fetch("/log?attacker-stole-" + encodeURIComponent(JSON.stringify(e.data.stolen)));
   });
   const ciphertext = document.getElementById("name").dataset.ciphertext;
-  const child = 'const c = new MessageChannel(); c.port1.onmessage = (m) => parent.parent.postMessage({ stolen: m.data }, "*"); parent.parent.postMessage({ path: "/trusted-scopes/pii/' + ciphertext + '" }, "*", [c.port2, new MessageChannel().port2]);';
-  const poser = 'try { trustedTypes.createPolicy("default", { createHTML: (s) => s }); } catch {} const child = document.createElement("iframe"); child.srcdoc = "<script>" + ' + JSON.stringify(child) + ' + "<" + "/script>"; document.documentElement.append(child);';
+  const poser = 'const c = new MessageChannel(); c.port1.onmessage = (m) => parent.postMessage({ stolen: m.data }, "*"); parent.postMessage({ path: "/trusted-scopes/pii/' + ciphertext + '" }, "*", [c.port2, new MessageChannel().port2]);';
   const attempt = (fn) => {
     try { fn(); fetch("/log?attacker-" + route + "-set"); } catch (e) { fetch("/log?attacker-" + route + "-threw-" + e.name); }
   };
@@ -29,7 +27,8 @@
       frame.contentWindow.location = "about:blank";
       setTimeout(() => attempt(() => {
         const w = frame.contentWindow;
-        w.trustedTypes.createPolicy("default", { createHTML: (s) => s, createScript: (s) => s });
+        // The page's CSP lets each document create a default policy once.
+        w.trustedTypes.createPolicy("default", { createScript: (s) => s });
         w.eval(poser);
       }), 500);
     }

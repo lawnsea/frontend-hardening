@@ -40,10 +40,13 @@ const events = () =>
 const UNTRUSTED = (e: string) => e.startsWith("untrusted-") || e.startsWith("breakout") || e.startsWith("attacker-");
 const stolen = () => events().filter((e) => e.startsWith("attacker-stole-"));
 
-// Whether a blob:null frame, which can only be a trusted frame, shows the PII.
+// A frame's URL path, or "" for a frame that hasn't navigated yet.
+const pathOf = (url: string) => (URL.canParse(url) ? new URL(url).pathname : "");
+
+// Whether a frame in the pii scope shows the PII.
 const piiShown = async (page: Page) => {
-  const blobFrames = page.frames().filter((f) => f.url().startsWith("blob:null/"));
-  const texts = await Promise.all(blobFrames.map((f) => f.locator("body").textContent().catch(() => null)));
+  const piiFrames = page.frames().filter((f) => pathOf(f.url()).startsWith("/trusted-scopes/pii/"));
+  const texts = await Promise.all(piiFrames.map((f) => f.locator("body").textContent().catch(() => null)));
   return texts.includes(PII);
 };
 
@@ -118,6 +121,33 @@ for (const hangRedeem of [false, true]) {
     }
   });
 }
+
+test("trusted frames run isolated in their own processes", async ({ page }) => {
+  example = await start();
+  await loadThroughWorker(page);
+  await expect.poll(() => piiShown(page)).toBe(true);
+  const trusted = page.frames().filter((f) => /^\/(controller-frame|trusted-scopes\/)/.test(pathOf(f.url())));
+  expect(trusted.map((f) => pathOf(f.url()).split("/").slice(0, 3).join("/")).sort()).toEqual([
+    "/controller-frame",
+    "/trusted-scopes/pii",
+    "/trusted-scopes/pii",
+  ]);
+  for (const frame of trusted) {
+    expect(await frame.evaluate(() => [self.origin, crossOriginIsolated])).toEqual(["null", true]);
+  }
+  // Frames in the page's process share its main thread, so their timers stop while
+  // the page is busy.
+  const piiFrame = trusted.find((f) => pathOf(f.url()).length > "/trusted-scopes/pii/".length)!;
+  await piiFrame.evaluate(() => {
+    (self as unknown as { ticks: number }).ticks = 0;
+    setInterval(() => (self as unknown as { ticks: number }).ticks++, 20);
+  });
+  await page.evaluate(() => {
+    const end = Date.now() + 1000;
+    while (Date.now() < end);
+  });
+  expect(await piiFrame.evaluate(() => (self as unknown as { ticks: number }).ticks)).toBeGreaterThan(20);
+});
 
 test("the page has only the PII's ciphertext", async ({ page }) => {
   example = await start();

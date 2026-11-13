@@ -20,13 +20,15 @@ const lit = (s) => JSON.stringify(s).replace(/</g, "\\u003c");
 // Replaces each {{key}} in a template with values[key].
 const render = (name, values) => TEMPLATES[name].replace(/{{(\w+)}}/g, (_, key) => values[key]);
 
-// A sandboxed document that loads `inner` from a Blob URL, so `inner` has an
-// opaque blob:null origin and its own process.
-const blobFrame = (inner) =>
-  new Response(render("blob-frame.html", { inner: lit(inner) }), {
+// A trusted document. The sandbox gives it an opaque origin, and
+// Document-Isolation-Policy puts it in its own process, which it checks with
+// crossOriginIsolated before doing anything.
+const isolated = (body) =>
+  new Response(body, {
     headers: {
       "Content-Type": "text/html; charset=utf-8",
-      "Content-Security-Policy": "sandbox allow-scripts; frame-src blob:",
+      "Content-Security-Policy": "sandbox allow-scripts; frame-src 'none'",
+      "Document-Isolation-Policy": "isolate-and-credentialless",
       "Cache-Control": "no-store",
     },
   });
@@ -58,5 +60,5 @@ self.addEventListener("message", (e) => {
 self.addEventListener("fetch", (e) => {
   const url = new URL(e.request.url);
   if (e.request.mode !== "navigate") return;
-  e.respondWith(blobFrame(url.pathname === ROOT ? scopeFrame : frame(url.pathname)));
+  e.respondWith(isolated(url.pathname === ROOT ? scopeFrame : frame(url.pathname)));
 });

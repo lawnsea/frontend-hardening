@@ -12,7 +12,7 @@ import type { Request, Response } from "./ipc.ts";
 import type { ProfileOptions } from "./profile-server.ts";
 import { render, template, workerSource } from "./templates.ts";
 
-const CONTROLLER_SW = workerSource("controller-sw.js", ["blob-frame.html", "controller-frame.html"]);
+const CONTROLLER_SW = workerSource("controller-sw.js", ["controller-frame.html"]);
 const PAGE = template("page.html");
 
 // The trusted server for each scope.

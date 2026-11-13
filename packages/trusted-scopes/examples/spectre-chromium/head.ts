@@ -43,16 +43,15 @@ export function headScript(psk: string): string {
   const scopes = new trustedGlobals.Map();
 
   // These listeners are registered before untrusted code runs, so they see each
-  // message first. Each trusted frame's blob:null document posts to the page, so
-  // its messages have origin "null" and come from the trusted frame's first child.
-  // A document untrusted code can put there under the page's CSP has the page's
-  // origin, or can't run script.
+  // message first. Each trusted frame's document is sandboxed, so its messages
+  // have origin "null". A document untrusted code can put in a frame under the
+  // page's CSP has the page's origin, or can't run script.
 
   // Establish message channels connecting the controller frame to the trusted head script and the controller service worker
   const onControllerMessage = (event) => {
     const e = trustedGlobals.message(event);
     if (!e.isTrusted || e.origin !== "null") return;
-    if (e.source !== trustedGlobals.iframe(controllerFrame).contentWindow?.[0]) return;
+    if (e.source !== trustedGlobals.iframe(controllerFrame).contentWindow) return;
     e.stopImmediatePropagation();
     trustedGlobals.window.removeEventListener("message", onControllerMessage, true);
     trustedGlobals.serviceWorker.postMessage(controller, null, [e.ports[1]]);
@@ -69,7 +68,7 @@ export function headScript(psk: string): string {
     let frame = null;
     let expected;
     pendingFrames.forEach((value, candidate) => {
-      if (!frame && trustedGlobals.iframe(candidate).contentWindow?.[0] === source) {
+      if (!frame && trustedGlobals.iframe(candidate).contentWindow === source) {
         frame = candidate;
         expected = value;
       }

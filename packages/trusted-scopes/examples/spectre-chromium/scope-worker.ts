@@ -11,7 +11,7 @@ const FETCH_PATH = `async (path, fetchSigned) => {
 export function scopeWorker({ modules = {}, frameContent = FETCH_PATH }: { modules?: Record<string, string>; frameContent?: string } = {}): string {
   return workerSource(
     "scope-sw.js",
-    ["blob-frame.html", "scope-frame.html", "scope-member-frame.html"],
+    ["scope-frame.html", "scope-member-frame.html"],
     `const SCOPE_MODULES = ${JSON.stringify(modules)};\nconst FRAME_CONTENT = ${JSON.stringify(frameContent)};\n`,
   );
 }
