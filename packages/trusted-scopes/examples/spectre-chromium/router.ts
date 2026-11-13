@@ -1,7 +1,8 @@
 // The trusted L7 router. It runs the trusted scope servers and the untrusted
-// profile server as subprocesses, issues and redeems single-use keys, verifies
-// signed scope requests, and injects the trusted head script into the profile
-// page. `node router.ts` serves the example at http://localhost:5176/profile.
+// profile server as subprocesses, creates a session for each profile page load,
+// issues and redeems single-use keys, verifies signed scope requests, and injects
+// the trusted head script into the profile page. `node router.ts` serves the
+// example at http://localhost:5176/profile.
 import { fork, type ChildProcess } from "node:child_process";
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -30,6 +31,8 @@ export interface Options {
   hangRedeem?: boolean;
   // Refuses the controller worker script, so the page stays uncontrolled.
   refuseWorker?: boolean;
+  // More trusted scope servers, by scope, as paths relative to this file.
+  scopes?: Record<string, string>;
   profile?: ProfileOptions;
 }
 
@@ -37,24 +40,36 @@ export async function startExample(port: number, opts: Options = {}): Promise<Ex
   const origin = `http://localhost:${port}`;
   const timeout = opts.hangRedeem ? 1500 : 3000;
   const log: string[] = [];
-  const keys = new Map<string, "issued" | "spent">();
+  // Each key's state and the session it was issued for.
+  const keys = new Map<string, { state: "issued" | "spent"; session: string }>();
+  // Each session's MAC key.
   const sessions = new Map<string, Buffer>();
   const pending = new Map<number, (response: Response) => void>();
   let nextId = 0;
 
-  const start = (file: string, options: object = {}) => {
+  const start = (name: string, file: string, options: object = {}) => {
     const child = fork(fileURLToPath(new URL(file, import.meta.url)), [JSON.stringify(options)]);
-    child.on("message", (message: { id?: number; response?: Response; log?: string }) => {
+    child.on("message", async (message: { id?: number; response?: Response; log?: string; fetch?: { server: string; url: string } }) => {
       if (message.log) log.push(message.log);
       if (message.response) {
         pending.get(message.id!)!(message.response);
         pending.delete(message.id!);
       }
+      // Relays a request from one server to another.
+      if (message.fetch) {
+        const target = scopeServers.get(message.fetch.server);
+        const reply = target
+          ? await request(target, { method: "GET", url: message.fetch.url, headers: {}, body: "", from: name })
+          : empty(404);
+        child.send({ id: message.id, reply });
+      }
     });
     return child;
   };
-  const profileServer = start("profile-server.ts", opts.profile);
-  const scopeServers = new Map(Object.entries(SCOPE_SERVERS).map(([scope, file]) => [scope, start(file)]));
+  const profileServer = start("profile", "profile-server.ts", opts.profile);
+  const scopeServers = new Map(
+    Object.entries({ ...SCOPE_SERVERS, ...opts.scopes }).map(([scope, file]) => [scope, start(scope, file)]),
+  );
   const request = (child: ChildProcess, req: Request) =>
     new Promise<Response>((resolve) => {
       const id = nextId++;
@@ -92,7 +107,10 @@ export async function startExample(port: number, opts: Options = {}): Promise<Ex
     const scopeMatch = pathname.match(/^\/trusted-scopes\/([a-z0-9-]+)(\/.*)$/);
     const scopeWorker = scopeMatch?.[2] === "/sw.js";
     // Only the trusted workers can be registered.
-    if ((dest === "serviceworker") !== (pathname === "/sw.js" || scopeWorker)) return empty(403);
+    if ((dest === "serviceworker") !== (pathname === "/sw.js" || scopeWorker)) {
+      if (dest === "serviceworker") log.push(`serviceworker-refused-${pathname}`);
+      return empty(403);
+    }
     const forwarded: Request = { method: req.method!, url, headers: req.headers, body: await readBody(req) };
 
     if (pathname === "/sw.js") {
@@ -102,9 +120,11 @@ export async function startExample(port: number, opts: Options = {}): Promise<Ex
 
     if (pathname === "/profile") {
       if (dest !== "document") return empty(403);
+      const session = randomBytes(16).toString("base64url");
+      sessions.set(session, randomBytes(32));
       const psk = randomBytes(32).toString("base64url");
-      keys.set(psk, "issued");
-      const page = await request(profileServer, forwarded);
+      keys.set(psk, { state: "issued", session });
+      const page = await request(profileServer, { ...forwarded, session });
       log.push("profile-served");
       return {
         status: page.status,
@@ -126,7 +146,7 @@ export async function startExample(port: number, opts: Options = {}): Promise<Ex
     const psk = pathname.match(/^\/psk\/([\w-]+)$/)?.[1];
     if (psk && req.method === "GET") {
       const cors = { "Access-Control-Allow-Origin": "null" };
-      const state = keys.get(psk);
+      const state = keys.get(psk)?.state;
       if (state !== "issued") {
         log.push(`psk-refused-${state ?? "unknown"}-origin-${req.headers.origin}`);
         return empty(410, cors);
@@ -135,15 +155,15 @@ export async function startExample(port: number, opts: Options = {}): Promise<Ex
         log.push("psk-hanging");
         return new Promise(() => {});
       }
-      keys.set(psk, "spent");
-      const sessionId = randomBytes(16).toString("base64url");
-      sessions.set(sessionId, randomBytes(32));
+      const key = keys.get(psk)!;
+      key.state = "spent";
       log.push(`psk-redeemed-origin-${req.headers.origin}`);
       // The controller frame's MAC, which /scope-mac accepts.
-      return { status: 200, headers: { ...cors, "Content-Type": "text/plain", "Cache-Control": "no-store" }, body: macFor(sessionId, CONTROLLER) };
+      return { status: 200, headers: { ...cors, "Content-Type": "text/plain", "Cache-Control": "no-store" }, body: macFor(key.session, CONTROLLER) };
     }
     if (psk && req.method === "DELETE") {
-      keys.set(psk, "spent");
+      const key = keys.get(psk);
+      if (key) key.state = "spent";
       log.push("psk-revoked");
       return empty(204);
     }
@@ -151,13 +171,13 @@ export async function startExample(port: number, opts: Options = {}): Promise<Ex
     if (pathname === "/controller-frame-ready") {
       // Only a page the controller worker doesn't control reaches here. Holds the
       // script until the key is spent, or revokes it on timeout.
-      const key = searchParams.get("psk")!;
+      const key = keys.get(searchParams.get("psk")!);
       const start = Date.now();
-      while (keys.get(key) === "issued" && Date.now() - start < timeout) {
+      while (key?.state === "issued" && Date.now() - start < timeout) {
         await new Promise((r) => setTimeout(r, 20));
       }
-      if (keys.get(key) === "issued") {
-        keys.set(key, "spent");
+      if (key?.state === "issued") {
+        key.state = "spent";
         log.push("gate-network-revoked");
       }
       log.push("gate-network");
@@ -198,12 +218,13 @@ export async function startExample(port: number, opts: Options = {}): Promise<Ex
         "Access-Control-Allow-Methods": "GET",
       };
       if (req.method === "OPTIONS") return empty(204, cors);
-      if (!signedFor(req.headers["trusted-scope-signature"], scope)) {
+      const header = req.headers["trusted-scope-signature"];
+      if (!signedFor(header, scope)) {
         log.push(`scope-refused-${pathname}`);
         return empty(403);
       }
       log.push(`scope-forwarded-${pathname}`);
-      const response = await request(server, forwarded);
+      const response = await request(server, { ...forwarded, session: (header as string).split(".")[0] });
       return { ...response, headers: { ...response.headers, ...cors } };
     }
 

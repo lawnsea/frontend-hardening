@@ -16,13 +16,16 @@ Protects the profile page's PII from [Spectre](https://spectreattack.com/) attac
 
 Each runs in its own process.
 
-- `router.ts`, the trusted L7 router, serves:
+- `router.ts`, the trusted L7 router, creates a session for each `/profile` load and passes its ID to the profile server. It serves:
   - `/sw.js`, the controller worker;
   - `GET /psk/<key>`, which redeems a single-use key for the controller frame's MAC, and `DELETE /psk/<key>`, which revokes it;
   - `GET /scope-mac/<scope>`, signed with the controller frame's MAC, which returns the scope's MAC, or `404` for a scope it doesn't serve;
-  - `/trusted-scopes/<scope>/*`, forwarded to the scope's server if the `Trusted-Scope-Signature` header is the scope's MAC: `<session ID>.<scope>.<HMAC-SHA256 of the scope>`. It forwards `/trusted-scopes/<scope>/sw.js` unsigned, for `Sec-Fetch-Dest: serviceworker` only.
-- `pii-server.ts`, the trusted server for the `pii` scope, serves `/trusted-scopes/pii/sw.js` and the PII.
-- `profile-server.ts`, the untrusted profile server, renders the profile page.
+  - `/trusted-scopes/<scope>/*`, forwarded to the scope's server with the session ID if the `Trusted-Scope-Signature` header is the scope's MAC: `<session ID>.<scope>.<HMAC-SHA256 of the scope>`. It forwards `/trusted-scopes/<scope>/sw.js` unsigned, for `Sec-Fetch-Dest: serviceworker` only.
+- `pii-server.ts`, the trusted server for the `pii` scope, serves:
+  - `/trusted-scopes/pii/sw.js`, the scope worker;
+  - the PII, encrypted with ChaCha20-Poly1305 under a per-session key, to the profile server only;
+  - `/trusted-scopes/pii/session-key`, the session's key, for requests the router forwards signed.
+- `profile-server.ts`, the untrusted profile server, renders the profile page with the encrypted PII.
 
 The router puts the trusted head script (`head.ts`) and a parser-blocking `<script src="/controller-frame-ready">` before the profile page's markup. It sends `Content-Security-Policy: frame-src <origin>/controller-frame <origin>/trusted-scopes/; require-trusted-types-for 'script'; trusted-types default`.
 
@@ -47,6 +50,8 @@ It creates the `default` Trusted Types policy, which refuses `srcdoc`, and saves
 
   The promise resolves to the trusted scope object.
 - `scopes[scope]` is the trusted scope object for a created scope.
-- `trustedScope.createFrame(path)` adds a frame for `/trusted-scopes/<scope><path>`, served by the scope worker. The frame posts one port to the scope frame and one to the scope worker. The scope frame fetches the path from the scope's server, signed, and sends the frame the result.
+- `trustedScope.createFrame(path)` adds a frame for `/trusted-scopes/<scope><path>`, served by the scope worker. The frame posts one port to the scope frame and one to the scope worker. The scope frame sends the frame its content:
+  - by default, the scope server's response to a signed request for the path;
+  - in the `pii` scope, the path decrypted. The profile page calls `createFrame("/" + ciphertext)`, and the pii scope frame decrypts it with the session key from `/trusted-scopes/pii/session-key` and [`@noble/ciphers`](https://github.com/paulmillr/noble-ciphers). `blob:null` documents aren't secure contexts, so they have no WebCrypto.
 
 The head script connects a trusted frame's ports only from a trusted message with origin `"null"` from the frame's first child, carrying the frame's path. If the path is wrong, it throws. Untrusted code can't run script there with origin `"null"`. `frame-src` blocks other URLs, the `default` policy blocks `srcdoc`, and a document it can script, such as `about:blank`, has the page's origin.

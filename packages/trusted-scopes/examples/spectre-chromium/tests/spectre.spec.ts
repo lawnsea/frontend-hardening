@@ -82,7 +82,8 @@ const loadOwnDocument = (route: string) => `<script>
   addEventListener("message", (e) => {
     if (e.data && "stolen" in e.data) fetch("/log?attacker-stole-" + encodeURIComponent(JSON.stringify(e.data.stolen)));
   });
-  const child = 'const c = new MessageChannel(); c.port1.onmessage = (m) => parent.parent.postMessage({ stolen: m.data }, "*"); parent.parent.postMessage({ path: "/trusted-scopes/pii/name" }, "*", [c.port2, new MessageChannel().port2]);';
+  const ciphertext = document.getElementById("name").dataset.ciphertext;
+  const child = 'const c = new MessageChannel(); c.port1.onmessage = (m) => parent.parent.postMessage({ stolen: m.data }, "*"); parent.parent.postMessage({ path: "/trusted-scopes/pii/' + ciphertext + '" }, "*", [c.port2, new MessageChannel().port2]);';
   const poser = 'try { trustedTypes.createPolicy("default", { createHTML: (s) => s }); } catch {} const child = document.createElement("iframe"); child.srcdoc = "<script>" + ' + JSON.stringify(child) + ' + "<" + "/script>"; document.documentElement.append(child);';
   const attempt = (fn) => {
     try { fn(); fetch("/log?attacker-" + route + "-set"); } catch (e) { fetch("/log?attacker-" + route + "-threw-" + e.name); }
@@ -124,7 +125,7 @@ const loadOwnDocument = (route: string) => `<script>
   };
   const waitForScope = () => {
     const pii = trustedScopes.scopes.pii;
-    if (pii) run(pii.createFrame("/name"));
+    if (pii) run(pii.createFrame("/" + ciphertext));
     else setTimeout(waitForScope, 20);
   };
   waitForScope();
@@ -223,17 +224,74 @@ for (const hangRedeem of [false, true]) {
   });
 }
 
-test("the router forwards only signed scope requests", async ({ page }) => {
+test("the page has only the PII's ciphertext", async ({ page }) => {
+  example = await start();
+  await loadThroughWorker(page);
+  await expect.poll(() => piiShown(page)).toBe(true);
+  const html = await page.content();
+  expect(html).not.toContain(PII);
+  expect(await page.locator("#name").getAttribute("data-ciphertext")).toMatch(/^[\w-]{40,}$/);
+});
+
+test("the session key needs the pii scope's MAC", async ({ page }) => {
   example = await start();
   await loadThroughWorker(page);
   await expect.poll(() => piiShown(page)).toBe(true);
   const statuses = await page.evaluate(async () => {
-    const get = (headers: Record<string, string>) => fetch("/trusted-scopes/pii/name", { headers }).then((r) => r.status);
+    const get = (headers: Record<string, string>) => fetch("/trusted-scopes/pii/session-key", { headers }).then((r) => r.status);
     return [await get({}), await get({ "Trusted-Scope-Signature": "x.pii.y" })];
   });
   expect(statuses).toEqual([403, 403]);
-  expect(events()).toContain("scope-forwarded-/trusted-scopes/pii/name");
-  expect(events()).toContain("scope-refused-/trusted-scopes/pii/name");
+  expect(events()).toContain("scope-forwarded-/trusted-scopes/pii/session-key");
+  expect(events()).toContain("scope-refused-/trusted-scopes/pii/session-key");
+});
+
+test("a page can use several scopes", async ({ page }) => {
+  example = await startExample(port++, { scopes: { echo: "tests/echo-scope-server.ts" } });
+  await page.goto(`${example.url}/profile`);
+  await expect.poll(() => piiShown(page), { timeout: 10000 }).toBe(true);
+  const listed = await page.evaluate(async () => {
+    const { trustedScopes } = window as unknown as {
+      trustedScopes: { createScope(s: string): Promise<{ createFrame(p: string): HTMLIFrameElement }>; scopes: object };
+    };
+    const echo = await trustedScopes.createScope("echo");
+    document.body.append(echo.createFrame("/greeting"));
+    return Object.keys(trustedScopes.scopes);
+  });
+  expect(listed).toEqual(["pii", "echo"]);
+  const texts = async () => Promise.all(page.frames().map((f) => f.locator("body").textContent().catch(() => null)));
+  await expect.poll(texts).toContain("Hello from echo");
+  expect(await piiShown(page)).toBe(true);
+});
+
+test("a later load reuses the registered scope worker", async ({ page }) => {
+  example = await start();
+  await loadThroughWorker(page);
+  await expect.poll(() => piiShown(page)).toBe(true);
+  await page.reload();
+  await expect.poll(() => events().filter((e) => e === "profile-served").length).toBe(3);
+  await expect.poll(() => piiShown(page)).toBe(true);
+});
+
+test("the scope worker gets a port from the scope frame and from each frame", async ({ page }) => {
+  example = await start();
+  await loadThroughWorker(page);
+  await expect.poll(() => piiShown(page)).toBe(true);
+  await expect.poll(() => events().filter((e) => e === "scope-worker-port-pii").length).toBe(2);
+});
+
+test("the router registers only the trusted workers", async ({ page }) => {
+  example = await start();
+  await loadThroughWorker(page);
+  const outcomes = await page.evaluate(async () => {
+    const outcome = (p: Promise<unknown>) => p.then(() => "registered", (e: Error) => e.name);
+    return [
+      await outcome(navigator.serviceWorker.register("/untrusted.js")),
+      await outcome(navigator.serviceWorker.register("/trusted-scopes/pii/sw.js", { scope: "/" })),
+    ];
+  });
+  expect(outcomes).not.toContain("registered");
+  expect(events()).toContain("serviceworker-refused-/untrusted.js");
 });
 
 test("trustedScopes creates each scope once and lists it", async ({ page }) => {

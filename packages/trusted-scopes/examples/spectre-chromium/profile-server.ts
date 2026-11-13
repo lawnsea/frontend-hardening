@@ -1,6 +1,7 @@
-// The untrusted profile server. It renders the profile page, which shows the user's
-// name in a frame of the trusted "pii" scope.
-import { options, serve } from "./ipc.ts";
+// The untrusted profile server. It renders the profile page with the user's name
+// encrypted for the page's session, and shows it in a frame of the trusted "pii"
+// scope, which decrypts it.
+import { options, request, serve } from "./ipc.ts";
 
 export interface ProfileOptions {
   // Extra markup for the page's head and the end of its body.
@@ -12,7 +13,7 @@ export interface ProfileOptions {
 
 const { head = "", body = "", files = {} } = options<ProfileOptions>();
 
-const page = `<!doctype html>
+const page = (name: string) => `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -23,20 +24,24 @@ const page = `<!doctype html>
     <h1>Profile</h1>
     <dl>
       <dt>Name:</dt>
-      <dd id="name"></dd>
+      <dd id="name" data-ciphertext="${name}"></dd>
     </dl>
     <script>
-      window.trustedScopes?.createScope("pii").then((pii) => document.getElementById("name").append(pii.createFrame("/name")));
+      window.trustedScopes?.createScope("pii").then((pii) => {
+        const name = document.getElementById("name");
+        name.append(pii.createFrame("/" + name.dataset.ciphertext));
+      });
     </script>
     ${body}
   </body>
 </html>
 `;
 
-serve(async ({ url }) => {
+serve(async ({ url, session }) => {
   const { pathname } = new URL(url, "http://localhost");
   if (pathname === "/profile") {
-    return { status: 200, headers: { "Content-Type": "text/html; charset=utf-8" }, body: page };
+    const name = await request("pii", `/trusted-scopes/pii/ciphertext?session=${session}`);
+    return { status: 200, headers: { "Content-Type": "text/html; charset=utf-8" }, body: page(name.body) };
   }
   const file = Object.hasOwn(files, pathname) ? files[pathname] : undefined;
   if (file) return { status: 200, headers: { "Content-Type": file.type }, body: file.body };
