@@ -2,6 +2,7 @@
 // encrypted for the page's session, and shows it in a frame of the trusted "pii"
 // scope, which decrypts it.
 import { options, request, serve } from "./ipc.ts";
+import { html, render, template } from "./templates.ts";
 
 export interface ProfileOptions {
   // Extra markup for the page's head and the end of its body.
@@ -13,29 +14,8 @@ export interface ProfileOptions {
 
 const { head = "", body = "", files = {} } = options<ProfileOptions>();
 
-const page = (name: string) => `<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Profile</title>
-    ${head}
-  </head>
-  <body>
-    <h1>Profile</h1>
-    <dl>
-      <dt>Name:</dt>
-      <dd id="name" data-ciphertext="${name}"></dd>
-    </dl>
-    <script>
-      window.trustedScopes?.createScope("pii").then((pii) => {
-        const name = document.getElementById("name");
-        name.append(pii.createFrame("/" + name.dataset.ciphertext));
-      });
-    </script>
-    ${body}
-  </body>
-</html>
-`;
+const PAGE = template("profile.html");
+const page = (ciphertext: string) => render(PAGE, { head, body, ciphertext: html(ciphertext) });
 
 serve(async ({ url, session }) => {
   const { pathname } = new URL(url, "http://localhost");

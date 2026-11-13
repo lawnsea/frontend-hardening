@@ -1,0 +1,5 @@
+<!doctype html><meta charset="utf-8"><body><script>
+  const f = document.createElement("iframe");
+  f.src = URL.createObjectURL(new Blob([{{inner}}], { type: "text/html" }));
+  document.body.append(f);
+</script>

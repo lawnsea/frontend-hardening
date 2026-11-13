@@ -1,135 +1,30 @@
 import { expect, test, type Page } from "@playwright/test";
+import { readFileSync } from "node:fs";
 import { PII } from "../profile-db.ts";
 import { startExample, type Example, type Options } from "../router.ts";
+import { render } from "../templates.ts";
 
 let port = 5320;
 let example: Example;
 test.afterEach(() => example?.close());
 
-// Records that an untrusted script ran, in run order on the page and in the
-// router's log as a request to /log.
-const mark = (name: string) => `<script>(window.order ??= []).push("${name}"); fetch("/log?${name}")</script>`;
-
-// Untrusted markup that marks when untrusted code runs, tries to break out of the
-// script it's in, and looks for the key and tries to redeem it.
-const UNTRUSTED_HEAD = mark("untrusted-head-inline");
-const UNTRUSTED_BODY = `
-<!-- </script></body><script>fetch("/log?breakout")</script> -->
-</script>${mark("breakout-2")}
-<script>
-  (window.order ??= []).push("untrusted-body-inline");
-  fetch("/log?untrusted-body-inline");
-  const stolen = [...document.scripts].map((s) => s.textContent).join("\\n").match(/psk[=/]([\\w-]{43})/)?.[1];
-  fetch("/log?attacker-found-secret-" + Boolean(stolen));
-  fetch("/psk/" + (stolen ?? "none")).then((r) => fetch("/log?attacker-redeem-" + r.status));
-</script>
-<script src="/untrusted.js"></script>
-${mark("untrusted-after-external")}`;
-
-// Reports whatever arrives on a port.
-const REPORT = `(m) => fetch(location.origin + "/log?attacker-stole-" + encodeURIComponent(JSON.stringify(m.data)))`;
+// Untrusted markup and attacks the tests add to the profile page, from markup/.
+// The untrusted scripts record when they run, in order on the page and in the
+// router's log as requests to /log.
+const markup = (name: string) => readFileSync(new URL(`./markup/${name}`, import.meta.url), "utf8");
+const UNTRUSTED_HEAD = markup("untrusted-head.html");
+const UNTRUSTED_BODY = markup("untrusted-body.html");
+const STEAL_CONTROL = markup("steal-control.html");
+const POLLUTE = markup("pollute.html");
+const loadOwnDocument = (route: string) => render(markup("load-own-document.html"), { route: JSON.stringify(route) });
 
 const FILES = {
   "/untrusted.js": {
     type: "text/javascript",
     body: `(window.order ??= []).push("untrusted-external"); fetch("/log?untrusted-external")`,
   },
-  "/evil": {
-    type: "text/html",
-    body: `<!doctype html><script>addEventListener("message", (e) => { const p = e.ports[0]; if (p) p.onmessage = ${REPORT}; });</script>`,
-  },
+  "/evil": { type: "text/html", body: markup("evil.html") },
 };
-
-// Takes the controller frame's ports, or sends the controller frame its own.
-const STEAL_CONTROL = `<script>
-  const controllerFrame = document.querySelector("html > iframe");
-  addEventListener("message", (e) => {
-    const control = e.ports[0];
-    if (!control) return;
-    const mint = new MessageChannel();
-    mint.port1.onmessage = ${REPORT};
-    control.postMessage({ scope: "pii" }, [mint.port2]);
-  }, true);
-  document.addEventListener("load", (e) => {
-    if (e.target !== controllerFrame) return;
-    e.stopImmediatePropagation();
-    const control = new MessageChannel();
-    const mint = new MessageChannel();
-    mint.port1.onmessage = ${REPORT};
-    control.port1.postMessage({ scope: "pii" }, [mint.port2]);
-    controllerFrame.contentWindow.postMessage(null, "*", [control.port2]);
-  }, true);
-</script>`;
-
-// Replaces MessagePort.prototype.postMessage, and asks any port the head script
-// sends on for the pii scope's MAC on a channel of its own.
-const POLLUTE = `<script>
-  const original = MessagePort.prototype.postMessage;
-  MessagePort.prototype.postMessage = function (message, transfer) {
-    const mint = new MessageChannel();
-    mint.port1.onmessage = ${REPORT};
-    original.call(this, { scope: "pii" }, [mint.port2]);
-    return original.call(this, message, transfer);
-  };
-</script>`;
-
-// Creates a frame in the pii scope and tries to load its own document in it, by
-// `route`. Its document adds a child frame that posts as the frame's blob:null
-// document would. The page's CSP lets each document create a default policy once.
-const loadOwnDocument = (route: string) => `<script>
-  const route = ${JSON.stringify(route)};
-  // The child posts what it gets back to this page, which reports it.
-  addEventListener("message", (e) => {
-    if (e.data && "stolen" in e.data) fetch("/log?attacker-stole-" + encodeURIComponent(JSON.stringify(e.data.stolen)));
-  });
-  const ciphertext = document.getElementById("name").dataset.ciphertext;
-  const child = 'const c = new MessageChannel(); c.port1.onmessage = (m) => parent.parent.postMessage({ stolen: m.data }, "*"); parent.parent.postMessage({ path: "/trusted-scopes/pii/' + ciphertext + '" }, "*", [c.port2, new MessageChannel().port2]);';
-  const poser = 'try { trustedTypes.createPolicy("default", { createHTML: (s) => s }); } catch {} const child = document.createElement("iframe"); child.srcdoc = "<script>" + ' + JSON.stringify(child) + ' + "<" + "/script>"; document.documentElement.append(child);';
-  const attempt = (fn) => {
-    try { fn(); fetch("/log?attacker-" + route + "-set"); } catch (e) { fetch("/log?attacker-" + route + "-threw-" + e.name); }
-  };
-  const run = (frame) => {
-    if (route === "srcdoc") attempt(() => { frame.srcdoc = "<script>" + poser + "<" + "/script>"; });
-    if (route === "sandboxed-srcdoc") attempt(() => { frame.sandbox = "allow-scripts"; frame.srcdoc = "<script>" + poser + "<" + "/script>"; });
-    if (route === "default-policy") attempt(() => {
-      trustedTypes.createPolicy("default", { createHTML: (html) => html });
-      frame.sandbox = "allow-scripts";
-      frame.srcdoc = "<script>" + poser + "<" + "/script>";
-    });
-    if (route === "data") attempt(() => { frame.src = "data:text/html," + encodeURIComponent("<script>" + poser + "<" + "/script>"); });
-    if (route === "controller") attempt(() => { frame.src = "/controller-frame?psk=x"; });
-    document.body.append(frame);
-    if (route === "blank") {
-      // about:blank has the page's origin.
-      frame.contentWindow.location = "about:blank";
-      setTimeout(() => attempt(() => {
-        const w = frame.contentWindow;
-        w.trustedTypes.createPolicy("default", { createHTML: (s) => s, createScript: (s) => s });
-        w.eval(poser);
-      }), 500);
-    }
-    if (route === "frames") attempt(() => { window[window.length - 1].location = "/evil"; });
-    if (route === "name") {
-      const start = Date.now();
-      const poll = () => {
-        for (let i = 0; i < window.length; i++) {
-          try {
-            if (window[i].pii) return void attempt(() => open("/evil", "pii"));
-          } catch {}
-        }
-        if (Date.now() - start < 2000) setTimeout(poll);
-        else fetch("/log?attacker-name-not-found");
-      };
-      poll();
-    }
-  };
-  const waitForScope = () => {
-    const pii = trustedScopes.scopes.pii;
-    if (pii) run(pii.createFrame("/" + ciphertext));
-    else setTimeout(waitForScope, 20);
-  };
-  waitForScope();
-</script>`;
 
 const start = (opts: Options = {}, attack: { head?: string; body?: string } = {}) =>
   startExample(port++, {

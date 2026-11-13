@@ -1,49 +1,32 @@
 // The controller service worker. It serves the controller frame and holds each
 // page's /controller-frame-ready script until that page's controller frame has
-// redeemed its key.
+// redeemed its key. The router defines TEMPLATES, the worker's HTML templates,
+// before this source.
 
 self.addEventListener("install", () => self.skipWaiting());
 
 // Embeds a string in a script without letting it close the script element.
 const lit = (s) => JSON.stringify(s).replace(/</g, "\\u003c");
 
+// Replaces each {{key}} in a template with values[key].
+const render = (name, values) => TEMPLATES[name].replace(/{{(\w+)}}/g, (_, key) => values[key]);
+
 // A sandboxed document that loads `inner` from a Blob URL, so `inner` has an
 // opaque blob:null origin and its own process.
 const blobFrame = (inner) =>
-  new Response(
-    `<!doctype html><meta charset="utf-8"><body><script>
-  const f = document.createElement("iframe");
-  f.src = URL.createObjectURL(new Blob([${lit(inner)}], { type: "text/html" }));
-  document.body.append(f);
-</script>`,
-    {
-      headers: {
-        "Content-Type": "text/html; charset=utf-8",
-        "Content-Security-Policy": "sandbox allow-scripts; frame-src blob:",
-        "Cache-Control": "no-store",
-      },
+  new Response(render("blob-frame.html", { inner: lit(inner) }), {
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Content-Security-Policy": "sandbox allow-scripts; frame-src blob:",
+      "Cache-Control": "no-store",
     },
-  );
+  });
 
 // Posts a control port and a port for this worker to the page, then redeems the
 // key for the controller frame's MAC. Each message on the control port names a
 // scope and carries a port to its scope frame, which gets the scope's MAC.
-const controllerFrame = (psk) => `<!doctype html><meta charset="utf-8"><script>
-  const ORIGIN = ${lit(self.location.origin)};
-  const control = new MessageChannel();
-  const worker = new MessageChannel();
-  parent.parent.postMessage({ path: "/controller-frame" }, "*", [control.port2, worker.port2]);
-  const mac = fetch(ORIGIN + "/psk/" + ${lit(encodeURIComponent(psk))})
-    .then((r) => (r.ok ? r.text() : Promise.reject(r.status)));
-  mac.then(() => worker.port1.postMessage("ready"), () => worker.port1.postMessage("failed"));
-  control.port1.onmessage = async (m) => {
-    const port = m.ports[0];
-    const response = await fetch(ORIGIN + "/scope-mac/" + encodeURIComponent(m.data.scope), {
-      headers: { "Trusted-Scope-Signature": await mac },
-    });
-    port.postMessage(response.ok ? { mac: await response.text() } : { error: response.status });
-  };
-</script>`;
+const controllerFrame = (psk) =>
+  render("controller-frame.html", { origin: lit(self.location.origin), psk: lit(encodeURIComponent(psk)) });
 
 // Each page's controller frame status, by client ID.
 const pages = new Map();
