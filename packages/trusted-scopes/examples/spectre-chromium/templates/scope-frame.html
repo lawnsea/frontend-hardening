@@ -13,24 +13,13 @@
   });
   signature.then(() => toHead.port1.postMessage("ready"), () => toHead.port1.postMessage("failed"));
 
-  // Links each module's relative imports to the Blob URLs of the modules before it.
-  const modules = (async () => {
-    const urls = {};
-    for (const [name, source] of Object.entries({{modules}})) {
-      const linked = source.replace(/from "\.\/([\w.]+)"/g, (_, dep) => "from " + JSON.stringify(urls[dep]));
-      urls[name] = URL.createObjectURL(new Blob([linked], { type: "text/javascript" }));
-    }
-    const loaded = {};
-    for (const name in urls) loaded[name] = await import(urls[name]);
-    return loaded;
-  })();
   const fetchSigned = async (path) =>
     fetch(ORIGIN + "/trusted-scopes/" + SCOPE + path, { headers: { "Trusted-Scope-Signature": await signature } });
   const frameContent = {{frameContent}};
   toHead.port1.onmessage = async (m) => {
     const port = m.ports[0];
     try {
-      port.postMessage(await frameContent(m.data.path, fetchSigned, await modules));
+      port.postMessage(await frameContent(m.data.path, fetchSigned));
     } catch {
       port.postMessage("");
     }

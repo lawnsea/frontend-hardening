@@ -8,10 +8,10 @@ const FETCH_PATH = `async (path, fetchSigned) => {
   return response.ok ? response.text() : "";
 }`;
 
-export function scopeWorker({ modules = {}, frameContent = FETCH_PATH }: { modules?: Record<string, string>; frameContent?: string } = {}): string {
+export function scopeWorker({ frameContent = FETCH_PATH }: { frameContent?: string } = {}): string {
   return workerSource(
     "scope-sw.js",
     ["scope-frame.html", "scope-member-frame.html"],
-    `const SCOPE_MODULES = ${JSON.stringify(modules)};\nconst FRAME_CONTENT = ${JSON.stringify(frameContent)};\n`,
+    `const FRAME_CONTENT = ${JSON.stringify(frameContent)};\n`,
   );
 }

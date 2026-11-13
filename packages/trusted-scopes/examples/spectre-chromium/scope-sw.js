@@ -2,12 +2,10 @@
 // scope's frames and holds no secrets: the scope frame signs the scope's requests,
 // which bypass this worker because the scope frame has an opaque origin.
 //
-// The scope's server defines three constants before this source (see
-// scope-worker.ts): TEMPLATES, the worker's HTML templates; SCOPE_MODULES, ES
-// module sources by file name, which the scope frame loads in order and links by
-// relative import; and FRAME_CONTENT, the source of an async function that
-// returns a frame's content given its path, a function that makes a signed
-// request for a scope path, and the modules.
+// The scope's server defines two constants before this source (see
+// scope-worker.ts): TEMPLATES, the worker's HTML templates; and FRAME_CONTENT, the
+// source of an async function that returns a frame's content given its path and a
+// function that makes a signed request for a scope path.
 
 self.addEventListener("install", () => self.skipWaiting());
 
@@ -41,7 +39,6 @@ const scopeFrame = render("scope-frame.html", {
   scope: lit(SCOPE),
   origin: lit(self.location.origin),
   root: lit(ROOT),
-  modules: lit(SCOPE_MODULES),
   frameContent: FRAME_CONTENT,
 });
 

@@ -23,7 +23,7 @@ Each runs in its own process.
   - `/trusted-scopes/<scope>/*`, forwarded to the scope's server with the session ID if the `Trusted-Scope-Signature` header is the scope's MAC: `<session ID>.<scope>.<HMAC-SHA256 of the scope>`. It forwards `/trusted-scopes/<scope>/sw.js` unsigned, for `Sec-Fetch-Dest: serviceworker` only.
 - `pii-server.ts`, the trusted server for the `pii` scope, serves:
   - `/trusted-scopes/pii/sw.js`, the scope worker;
-  - the PII, encrypted with ChaCha20-Poly1305 under a per-session key, to the profile server only;
+  - the PII, encrypted with AES-256-GCM under a per-session key, to the profile server only;
   - `/trusted-scopes/pii/session-key`, the session's key, for requests the router forwards signed.
 - `profile-server.ts`, the untrusted profile server, renders the profile page's head and body content, with the encrypted PII.
 
@@ -52,6 +52,6 @@ It creates the `default` Trusted Types policy, which refuses `srcdoc`, and saves
 - `scopes[scope]` is the trusted scope object for a created scope.
 - `trustedScope.createFrame(path)` adds a frame for `/trusted-scopes/<scope><path>`, served by the scope worker. The frame posts one port to the scope frame and one to the scope worker. The scope frame sends the frame its content:
   - by default, the scope server's response to a signed request for the path;
-  - in the `pii` scope, the path decrypted. The profile page calls `createFrame("/" + ciphertext)`, and the pii scope frame decrypts it with the session key from `/trusted-scopes/pii/session-key` and [`@noble/ciphers`](https://github.com/paulmillr/noble-ciphers).
+  - in the `pii` scope, the path decrypted. The profile page calls `createFrame("/" + ciphertext)`, and the pii scope frame decrypts it with AES-256-GCM, using WebCrypto and the session key from `/trusted-scopes/pii/session-key`.
 
 The head script connects a trusted frame's ports only from a trusted message with origin `"null"` from the frame's window, carrying the frame's path. If the path is wrong, it throws. Untrusted code can't run script there with origin `"null"`. `frame-src` blocks other URLs, the `default` policy blocks `srcdoc`, and a document it can script, such as `about:blank`, has the page's origin.
