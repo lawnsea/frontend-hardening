@@ -25,9 +25,9 @@ Each runs in its own process.
   - `/trusted-scopes/pii/sw.js`, the scope worker;
   - the PII, encrypted with ChaCha20-Poly1305 under a per-session key, to the profile server only;
   - `/trusted-scopes/pii/session-key`, the session's key, for requests the router forwards signed.
-- `profile-server.ts`, the untrusted profile server, renders the profile page with the encrypted PII.
+- `profile-server.ts`, the untrusted profile server, renders the profile page's head and body content, with the encrypted PII.
 
-The router puts the trusted head script (`head.ts`) and a parser-blocking `<script src="/controller-frame-ready">` before the profile page's markup. It sends `Content-Security-Policy: frame-src <origin>/controller-frame <origin>/trusted-scopes/; require-trusted-types-for 'script'; trusted-types default`.
+The profile server returns the page's head and body content. The router wraps them in a document whose head starts with the trusted head script (`head.ts`) and a parser-blocking `<script src="/controller-frame-ready">`. It sends `Content-Security-Policy: frame-src <origin>/controller-frame <origin>/trusted-scopes/; require-trusted-types-for 'script'; trusted-types default`.
 
 ## Head script
 

@@ -1,6 +1,7 @@
-// The untrusted profile server. It renders the profile page with the user's name
-// encrypted for the page's session, and shows it in a frame of the trusted "pii"
-// scope, which decrypts it.
+// The untrusted profile server. It renders the profile page's head and body
+// content, which the router wraps in a document, with the user's name encrypted
+// for the page's session. It shows the name in a frame of the trusted "pii" scope,
+// which decrypts it.
 import { options, request, serve } from "./ipc.ts";
 import { html, render, template } from "./templates.ts";
 
@@ -14,14 +15,18 @@ export interface ProfileOptions {
 
 const { head = "", body = "", files = {} } = options<ProfileOptions>();
 
-const PAGE = template("profile.html");
-const page = (ciphertext: string) => render(PAGE, { head, body, ciphertext: html(ciphertext) });
+const HEAD = template("profile-head.html");
+const BODY = template("profile-body.html");
 
 serve(async ({ url, session }) => {
   const { pathname } = new URL(url, "http://localhost");
   if (pathname === "/profile") {
     const name = await request("pii", `/trusted-scopes/pii/ciphertext?session=${session}`);
-    return { status: 200, headers: { "Content-Type": "text/html; charset=utf-8" }, body: page(name.body) };
+    return {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ head: render(HEAD, { head }), body: render(BODY, { body, ciphertext: html(name.body) }) }),
+    };
   }
   const file = Object.hasOwn(files, pathname) ? files[pathname] : undefined;
   if (file) return { status: 200, headers: { "Content-Type": file.type }, body: file.body };

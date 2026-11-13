@@ -13,7 +13,7 @@ import type { ProfileOptions } from "./profile-server.ts";
 import { render, template, workerSource } from "./templates.ts";
 
 const CONTROLLER_SW = workerSource("controller-sw.js", ["blob-frame.html", "controller-frame.html"]);
-const TRUSTED_HEAD = template("trusted-head.html");
+const PAGE = template("page.html");
 
 // The trusted server for each scope.
 const SCOPE_SERVERS: Record<string, string> = { pii: "pii-server.ts" };
@@ -125,19 +125,21 @@ export async function startExample(port: number, opts: Options = {}): Promise<Ex
       sessions.set(session, randomBytes(32));
       const psk = randomBytes(32).toString("base64url");
       keys.set(psk, { state: "issued", session });
+      // The profile server returns the page's head and body content as JSON.
       const page = await request(profileServer, { ...forwarded, session });
+      const content: { head: string; body: string } = JSON.parse(page.body);
       log.push("profile-served");
       return {
         status: page.status,
         headers: {
-          ...page.headers,
+          "Content-Type": "text/html; charset=utf-8",
           "Cache-Control": "no-store",
           "Cross-Origin-Opener-Policy": "same-origin",
           "Content-Security-Policy": `frame-src ${origin}/controller-frame ${origin}/trusted-scopes/; require-trusted-types-for 'script'; trusted-types default`,
         },
         // The head script and the parser-blocking script come first, so they run
         // before any of the profile page's markup is parsed.
-        body: render(TRUSTED_HEAD, { headScript: headScript(psk), psk, timeout: String(timeout) }) + page.body,
+        body: render(PAGE, { headScript: headScript(psk), psk, timeout: String(timeout), head: content.head, body: content.body }),
       };
     }
 
