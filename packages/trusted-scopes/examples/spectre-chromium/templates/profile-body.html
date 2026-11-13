@@ -1,0 +1,12 @@
+<h1>Profile</h1>
+<dl>
+  <dt>Name:</dt>
+  <dd id="name" data-ciphertext="{{ciphertext}}"></dd>
+</dl>
+<script>
+  window.trustedScopes?.createScope("pii").then((pii) => {
+    const name = document.getElementById("name");
+    name.append(pii.createFrame("/" + name.dataset.ciphertext));
+  });
+</script>
+{{body}}

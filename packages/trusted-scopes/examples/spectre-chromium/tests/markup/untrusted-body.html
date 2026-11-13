@@ -1,0 +1,12 @@
+<!-- </script></body><script>fetch("/log?breakout")</script> -->
+</script><script>(window.order ??= []).push("breakout-2"); fetch("/log?breakout-2")</script>
+<script>
+  (window.order ??= []).push("untrusted-body-inline");
+  fetch("/log?untrusted-body-inline");
+  // Looks for the key and tries to redeem it.
+  const stolen = [...document.scripts].map((s) => s.textContent).join("\n").match(/psk[=/]([\w-]{43})/)?.[1];
+  fetch("/log?attacker-found-secret-" + Boolean(stolen));
+  fetch("/psk/" + (stolen ?? "none")).then((r) => fetch("/log?attacker-redeem-" + r.status));
+</script>
+<script src="/untrusted.js"></script>
+<script>(window.order ??= []).push("untrusted-after-external"); fetch("/log?untrusted-after-external")</script>

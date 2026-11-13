@@ -1,0 +1,56 @@
+<script>
+  // Creates a frame in the pii scope and tries to load its own document in it, by
+  // route. Its document posts to this page as the frame's trusted document would.
+  const route = {{route}};
+  // The document posts what it gets back to this page, which reports it.
+  addEventListener("message", (e) => {
+    if (e.data && "stolen" in e.data) fetch("/log?attacker-stole-" + encodeURIComponent(JSON.stringify(e.data.stolen)));
+  });
+  const ciphertext = document.getElementById("name").dataset.ciphertext;
+  const poser = 'const c = new MessageChannel(); c.port1.onmessage = (m) => parent.postMessage({ stolen: m.data }, "*"); parent.postMessage({ path: "/trusted-scopes/pii/' + ciphertext + '" }, "*", [c.port2, new MessageChannel().port2]);';
+  const attempt = (fn) => {
+    try { fn(); fetch("/log?attacker-" + route + "-set"); } catch (e) { fetch("/log?attacker-" + route + "-threw-" + e.name); }
+  };
+  const run = (frame) => {
+    if (route === "srcdoc") attempt(() => { frame.srcdoc = "<script>" + poser + "<" + "/script>"; });
+    if (route === "sandboxed-srcdoc") attempt(() => { frame.sandbox = "allow-scripts"; frame.srcdoc = "<script>" + poser + "<" + "/script>"; });
+    if (route === "default-policy") attempt(() => {
+      trustedTypes.createPolicy("default", { createHTML: (html) => html });
+      frame.sandbox = "allow-scripts";
+      frame.srcdoc = "<script>" + poser + "<" + "/script>";
+    });
+    if (route === "data") attempt(() => { frame.src = "data:text/html," + encodeURIComponent("<script>" + poser + "<" + "/script>"); });
+    if (route === "controller") attempt(() => { frame.src = "/controller-frame?psk=x"; });
+    document.body.append(frame);
+    if (route === "blank") {
+      // about:blank has the page's origin.
+      frame.contentWindow.location = "about:blank";
+      setTimeout(() => attempt(() => {
+        const w = frame.contentWindow;
+        // The page's CSP lets each document create a default policy once.
+        w.trustedTypes.createPolicy("default", { createScript: (s) => s });
+        w.eval(poser);
+      }), 500);
+    }
+    if (route === "frames") attempt(() => { window[window.length - 1].location = "/evil"; });
+    if (route === "name") {
+      const start = Date.now();
+      const poll = () => {
+        for (let i = 0; i < window.length; i++) {
+          try {
+            if (window[i].pii) return void attempt(() => open("/evil", "pii"));
+          } catch {}
+        }
+        if (Date.now() - start < 2000) setTimeout(poll);
+        else fetch("/log?attacker-name-not-found");
+      };
+      poll();
+    }
+  };
+  const waitForScope = () => {
+    const pii = trustedScopes.scopes.pii;
+    if (pii) run(pii.createFrame("/" + ciphertext));
+    else setTimeout(waitForScope, 20);
+  };
+  waitForScope();
+</script>

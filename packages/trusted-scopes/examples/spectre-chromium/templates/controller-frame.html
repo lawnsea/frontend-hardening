@@ -1,0 +1,18 @@
+<!doctype html><meta charset="utf-8"><script>
+  const ORIGIN = {{origin}};
+  const control = new MessageChannel();
+  const worker = new MessageChannel();
+  parent.postMessage({ path: "/controller-frame" }, "*", [control.port2, worker.port2]);
+  // Without its own process, the page could read the MAC with Spectre, so don't redeem the key.
+  const mac = crossOriginIsolated
+    ? fetch(ORIGIN + "/psk/" + {{psk}}).then((r) => (r.ok ? r.text() : Promise.reject(r.status)))
+    : Promise.reject("not isolated");
+  mac.then(() => worker.port1.postMessage("ready"), () => worker.port1.postMessage("failed"));
+  control.port1.onmessage = async (m) => {
+    const port = m.ports[0];
+    const response = await fetch(ORIGIN + "/scope-mac/" + encodeURIComponent(m.data.scope), {
+      headers: { "Trusted-Scope-Signature": await mac },
+    });
+    port.postMessage(response.ok ? { mac: await response.text() } : { error: response.status });
+  };
+</script>

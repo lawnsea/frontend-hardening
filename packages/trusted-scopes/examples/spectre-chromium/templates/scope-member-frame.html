@@ -1,0 +1,7 @@
+<!doctype html><meta charset="utf-8"><body><script>
+  const toScope = new MessageChannel();
+  const toWorker = new MessageChannel();
+  parent.postMessage({ path: {{path}} }, "*", [toScope.port2, toWorker.port2]);
+  // Without its own process, the page could read the content with Spectre, so don't show it.
+  if (crossOriginIsolated) toScope.port1.onmessage = (m) => { document.body.textContent = m.data; };
+</script>
